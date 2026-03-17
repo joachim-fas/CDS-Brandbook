@@ -1,0 +1,599 @@
+import JSZip from 'jszip';
+import { saveAs } from 'file-saver';
+
+export async function generateShopifyTheme() {
+  const zip = new JSZip();
+
+  // --- LAYOUT ---
+  const layoutFolder = zip.folder('layout');
+  layoutFolder?.file('theme.liquid', `<!doctype html>
+<html class="no-js" lang="{{ request.locale.iso_code }}">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="">
+    <link rel="canonical" href="{{ canonical_url }}">
+    
+    <title>{{ page_title }}</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+    {{ content_for_header }}
+    
+    <script>
+      window.tailwind = {
+        config: {
+          theme: {
+            extend: {
+              colors: {
+                brand: '#CCFF00',
+                asphalt: '#111111',
+                pure: '#FFFFFF',
+                bglight: '#F4F4F0'
+              },
+              fontFamily: {
+                headline: ['"Anton"', 'sans-serif'],
+                mono: ['"JetBrains Mono"', 'monospace']
+              }
+            }
+          }
+        }
+      }
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+      :root {
+        --font-headline: 'Anton', sans-serif;
+        --font-mono: 'JetBrains Mono', monospace;
+      }
+      body { 
+        font-family: var(--font-mono) !important; 
+        background-color: #F4F4F0; 
+        color: #111111; 
+        background-image: linear-gradient(90deg, transparent 100px, #ff9999 100px, #ff9999 102px, transparent 102px), linear-gradient(#e5e5e5 1px, transparent 1px);
+        background-size: 100% 40px;
+      }
+      h1, h2, h3, h4, h5, h6, .font-headline { font-family: var(--font-headline) !important; }
+      .font-mono { font-family: var(--font-mono) !important; }
+      .marquee { white-space: nowrap; overflow: hidden; box-sizing: border-box; }
+      .marquee span { display: inline-block; padding-left: 100%; animation: marquee 15s linear infinite; }
+      @keyframes marquee { 0% { transform: translate(0, 0); } 100% { transform: translate(-100%, 0); } }
+      .pattern-notebook { background-image: linear-gradient(#111 1px, transparent 1px), linear-gradient(90deg, #111 1px, transparent 1px); background-size: 20px 20px; }
+    </style>
+  </head>
+  <body class="min-h-screen">
+    {% section 'announcement-bar' %}
+    {% section 'header' %}
+    
+    <main id="MainContent" class="content-for-layout focus-none" role="main" tabindex="-1">
+      {{ content_for_layout }}
+    </main>
+    
+    {% section 'footer' %}
+  </body>
+</html>`);
+
+  // --- TEMPLATES ---
+  const templatesFolder = zip.folder('templates');
+  templatesFolder?.file('index.json', `{
+  "sections": {
+    "banner": { "type": "image-banner" },
+    "rich_text": { "type": "rich-text" },
+    "featured_collection": { "type": "featured-collection" },
+    "image_with_text": { "type": "image-with-text" },
+    "multicolumn": { "type": "multicolumn" },
+    "newsletter": { "type": "newsletter" }
+  },
+  "order": [
+    "banner",
+    "rich_text",
+    "featured_collection",
+    "image_with_text",
+    "multicolumn",
+    "newsletter"
+  ]
+}`);
+
+  templatesFolder?.file('product.json', `{ "sections": { "main": { "type": "main-product" } }, "order": ["main"] }`);
+  templatesFolder?.file('collection.json', `{ "sections": { "main": { "type": "main-collection" } }, "order": ["main"] }`);
+  templatesFolder?.file('cart.json', `{ "sections": { "main": { "type": "main-cart" } }, "order": ["main"] }`);
+  templatesFolder?.file('search.json', `{ "sections": { "main": { "type": "main-search" } }, "order": ["main"] }`);
+  templatesFolder?.file('page.json', `{ "sections": { "main": { "type": "main-page" } }, "order": ["main"] }`);
+  templatesFolder?.file('404.json', `{ "sections": { "main": { "type": "main-404" } }, "order": ["main"] }`);
+  templatesFolder?.file('list-collections.json', `{ "sections": { "main": { "type": "main-list-collections" } }, "order": ["main"] }`);
+
+  // --- SECTIONS ---
+  const sectionsFolder = zip.folder('sections');
+  
+  // Announcement Bar
+  sectionsFolder?.file('announcement-bar.liquid', `<div class="bg-brand text-asphalt py-2 text-center border-b-2 border-asphalt text-xs font-bold uppercase tracking-widest">
+  {{ section.settings.text }}
+</div>
+{% schema %}
+{
+  "name": "Announcement Bar",
+  "settings": [
+    {
+      "type": "text",
+      "id": "text",
+      "default": "Free Shipping on all orders over €100 // Next Drop: Friday 18:00 CET",
+      "label": "Announcement text"
+    }
+  ]
+}
+{% endschema %}`);
+
+  // Header
+  sectionsFolder?.file('header.liquid', `<header class="bg-pure border-b-2 border-asphalt py-4 px-4 sm:px-6 lg:px-8 sticky top-0 z-30">
+  <div class="max-w-7xl mx-auto flex justify-between items-center">
+    <div class="flex items-center justify-start gap-4 w-1/3">
+      <button class="text-asphalt hover:text-brand transition-colors sm:hidden">
+        {% render 'icon-menu', class: 'w-6 h-6' %}
+      </button>
+      <a href="/" class="w-32 text-asphalt hover:text-brand transition-colors block">
+        {% render 'icon-logo', class: 'w-full h-full' %}
+        <span class="sr-only">{{ shop.name }}</span>
+      </a>
+    </div>
+    <nav class="hidden sm:flex justify-center items-center gap-6 w-1/3">
+      {% for link in linklists.main-menu.links %}
+        <a href="{{ link.url }}" class="text-asphalt hover:text-brand transition-colors text-sm font-bold uppercase tracking-widest">{{ link.title }}</a>
+      {% endfor %}
+    </nav>
+    <div class="flex items-center justify-end gap-6 w-1/3">
+      <a href="{{ routes.search_url }}" class="text-asphalt hover:text-brand transition-colors">
+        <span class="hidden sm:block text-sm font-bold uppercase tracking-widest">Search</span>
+        <span class="sm:hidden">{% render 'icon-search', class: 'w-6 h-6' %}</span>
+      </a>
+      <a href="{{ routes.account_url }}" class="text-asphalt hover:text-brand transition-colors hidden sm:block text-sm font-bold uppercase tracking-widest">
+        Account
+      </a>
+      <a href="{{ routes.cart_url }}" class="text-asphalt hover:text-brand transition-colors relative flex items-center gap-2">
+        <span class="hidden sm:block text-sm font-bold uppercase tracking-widest">Cart</span>
+        {% render 'icon-cart', class: 'w-6 h-6' %}
+        {% if cart.item_count > 0 %}
+          <span class="absolute -top-2 -right-2 bg-brand text-asphalt text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full border border-asphalt">
+            {{ cart.item_count }}
+          </span>
+        {% endif %}
+      </a>
+    </div>
+  </div>
+</header>
+{% schema %}
+{
+  "name": "Header",
+  "settings": []
+}
+{% endschema %}`);
+
+  // Image Banner
+  sectionsFolder?.file('image-banner.liquid', `<section class="relative min-h-[85vh] border-b-4 border-asphalt bg-asphalt overflow-hidden flex items-center justify-center p-4 sm:p-8">
+  <div class="absolute inset-0 opacity-40" style="background-image: repeating-linear-gradient(45deg, #111111 25%, transparent 25%, transparent 75%, #111111 75%, #111111), repeating-linear-gradient(45deg, #111111 25%, #222 25%, #222 75%, #111111 75%, #111111); background-position: 0 0, 10px 10px; background-size: 20px 20px;"></div>
+  <div class="relative z-10 bg-pure border-4 border-asphalt p-8 sm:p-16 max-w-3xl text-center shadow-[12px_12px_0_0_#CCFF00] transition-shadow duration-300 flex flex-col items-center">
+    <div class="bg-brand text-asphalt font-bold px-3 py-1 text-sm uppercase tracking-widest border-2 border-asphalt mb-6 transform -rotate-2">{{ section.settings.badge }}</div>
+    <h1 class="font-headline text-6xl md:text-8xl text-asphalt mb-6 uppercase leading-none">{{ section.settings.heading }}</h1>
+    <p class="font-bold text-asphalt/80 text-lg md:text-xl mb-10 max-w-xl">{{ section.settings.text }}</p>
+    <div class="flex flex-col sm:flex-row gap-6 w-full sm:w-auto">
+      <a href="{{ section.settings.button_link_1 }}" class="inline-block bg-asphalt text-pure font-headline tracking-widest text-lg px-10 py-4 font-bold uppercase border-4 border-asphalt shadow-[4px_4px_0_0_#CCFF00] hover:translate-y-1 hover:shadow-[2px_2px_0_0_#CCFF00] transition-all">{{ section.settings.button_label_1 }}</a>
+      <a href="{{ section.settings.button_link_2 }}" class="inline-block bg-pure text-asphalt font-headline tracking-widest text-lg px-10 py-4 font-bold uppercase border-4 border-asphalt shadow-[4px_4px_0_0_#111111] hover:translate-y-1 hover:shadow-[2px_2px_0_0_#111111] transition-all">{{ section.settings.button_label_2 }}</a>
+    </div>
+  </div>
+</section>
+{% schema %}
+{
+  "name": "Image Banner",
+  "settings": [
+    { "type": "text", "id": "badge", "default": "New Collection", "label": "Badge" },
+    { "type": "text", "id": "heading", "default": "Drop 01<br/>Rituals", "label": "Heading" },
+    { "type": "textarea", "id": "text", "default": "The new standard for street culture. Heavyweight fabrics, unapologetic statements.", "label": "Text" },
+    { "type": "text", "id": "button_label_1", "default": "Shop All", "label": "Button 1 Label" },
+    { "type": "url", "id": "button_link_1", "label": "Button 1 Link" },
+    { "type": "text", "id": "button_label_2", "default": "Explore", "label": "Button 2 Label" },
+    { "type": "url", "id": "button_link_2", "label": "Button 2 Link" }
+  ],
+  "presets": [{ "name": "Image Banner" }]
+}
+{% endschema %}`);
+
+  // Rich Text
+  sectionsFolder?.file('rich-text.liquid', `<section class="py-24 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto text-center">
+  <h2 class="font-headline text-4xl md:text-6xl text-asphalt uppercase mb-8">{{ section.settings.heading }}</h2>
+  <p class="font-bold text-xl text-asphalt/80 leading-relaxed mb-10">{{ section.settings.text }}</p>
+  <a href="{{ section.settings.button_link }}" class="inline-block bg-pure text-asphalt font-headline tracking-widest text-lg px-8 py-4 font-bold uppercase border-4 border-asphalt shadow-[4px_4px_0_0_#CCFF00] hover:translate-y-1 hover:shadow-[2px_2px_0_0_#CCFF00] transition-all">{{ section.settings.button_label }}</a>
+</section>
+{% schema %}
+{
+  "name": "Rich Text",
+  "settings": [
+    { "type": "text", "id": "heading", "default": "Talk is cheap.", "label": "Heading" },
+    { "type": "textarea", "id": "text", "default": "We don't follow trends, we set the baseline. Every garment is engineered for the streets.", "label": "Text" },
+    { "type": "text", "id": "button_label", "default": "Our Story", "label": "Button Label" },
+    { "type": "url", "id": "button_link", "label": "Button Link" }
+  ],
+  "presets": [{ "name": "Rich Text" }]
+}
+{% endschema %}`);
+
+  // Featured Collection
+  sectionsFolder?.file('featured-collection.liquid', `<section class="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t-4 border-asphalt">
+  <div class="mb-12">
+    <h2 class="font-headline text-5xl text-asphalt uppercase">{{ section.settings.heading }}</h2>
+  </div>
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16">
+    {% for product in collections[section.settings.collection].products limit: section.settings.products_to_show %}
+      <div class="group cursor-pointer flex flex-col">
+        <div class="bg-pure aspect-[3/4] border-4 border-asphalt mb-6 relative overflow-hidden flex items-center justify-center shadow-[6px_6px_0_0_#111111] group-hover:shadow-[10px_10px_0_0_#CCFF00] transition-all duration-300 group-hover:-translate-y-2">
+          <img src="{{ product.featured_image | image_url: width: 800 }}" alt="{{ product.title }}" class="object-cover w-full h-full" loading="lazy">
+          <div class="absolute bottom-4 left-4 right-4 translate-y-[150%] group-hover:translate-y-0 transition-transform duration-300 z-20">
+            <a href="{{ product.url }}" class="block text-center w-full font-headline tracking-widest text-lg px-4 py-4 font-bold uppercase border-2 border-asphalt transition-colors bg-pure text-asphalt hover:bg-brand">View Product</a>
+          </div>
+        </div>
+        <div class="flex justify-between items-start flex-grow">
+          <div>
+            <h3 class="font-headline text-2xl text-asphalt uppercase mb-2 group-hover:text-brand transition-colors leading-none">{{ product.title }}</h3>
+            <p class="text-xs text-asphalt/60 uppercase font-bold">{{ product.vendor }}</p>
+          </div>
+          <p class="font-bold text-xl text-asphalt">{{ product.price | money }}</p>
+        </div>
+      </div>
+    {% else %}
+      <p class="font-bold">Select a collection to display products.</p>
+    {% endfor %}
+  </div>
+  <div class="mt-16 text-center">
+    <a href="{{ collections[section.settings.collection].url }}" class="inline-block bg-pure text-asphalt font-headline tracking-widest text-lg px-12 py-5 font-bold uppercase border-4 border-asphalt shadow-[6px_6px_0_0_#111111] hover:translate-y-1 hover:shadow-[2px_2px_0_0_#111111] transition-all">View All Products</a>
+  </div>
+</section>
+{% schema %}
+{
+  "name": "Featured Collection",
+  "settings": [
+    { "type": "text", "id": "heading", "default": "Featured Products", "label": "Heading" },
+    { "type": "collection", "id": "collection", "label": "Collection" },
+    { "type": "range", "id": "products_to_show", "min": 3, "max": 12, "step": 3, "default": 6, "label": "Products to show" }
+  ],
+  "presets": [{ "name": "Featured Collection" }]
+}
+{% endschema %}`);
+
+  // Image with Text
+  sectionsFolder?.file('image-with-text.liquid', `<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+  <div class="flex flex-col md:flex-row border-4 border-asphalt shadow-[8px_8px_0_0_#111111] bg-pure">
+    <div class="md:w-1/2 bg-asphalt min-h-[400px] flex items-center justify-center relative overflow-hidden border-b-4 md:border-b-0 md:border-r-4 border-asphalt">
+      <div class="absolute inset-0 opacity-20 pattern-notebook mix-blend-overlay"></div>
+      <div class="text-brand font-headline text-8xl opacity-50 transform -rotate-12 transition-colors duration-300">CULTURE</div>
+    </div>
+    <div class="md:w-1/2 bg-brand p-12 md:p-20 flex flex-col justify-center transition-colors duration-300">
+      <h2 class="font-headline text-5xl md:text-6xl uppercase text-asphalt mb-6 leading-none">{{ section.settings.heading }}</h2>
+      <p class="font-bold text-lg mb-8 max-w-md leading-relaxed text-asphalt/90">{{ section.settings.text }}</p>
+      <a href="{{ section.settings.button_link }}" class="inline-block self-start bg-pure text-asphalt font-headline tracking-widest text-lg px-8 py-4 font-bold uppercase border-4 border-asphalt shadow-[4px_4px_0_0_#111111] hover:translate-y-1 hover:shadow-[2px_2px_0_0_#111111] transition-all">{{ section.settings.button_label }}</a>
+    </div>
+  </div>
+</section>
+{% schema %}
+{
+  "name": "Image with Text",
+  "settings": [
+    { "type": "text", "id": "heading", "default": "More Than<br/>Merch.", "label": "Heading" },
+    { "type": "textarea", "id": "text", "default": "Every piece is a cultural marker. We don't do random graphics.", "label": "Text" },
+    { "type": "text", "id": "button_label", "default": "Read The Manifesto", "label": "Button Label" },
+    { "type": "url", "id": "button_link", "label": "Button Link" }
+  ],
+  "presets": [{ "name": "Image with Text" }]
+}
+{% endschema %}`);
+
+  // Multicolumn
+  sectionsFolder?.file('multicolumn.liquid', `<section class="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t-4 border-asphalt">
+  <h2 class="font-headline text-5xl text-asphalt uppercase mb-16 text-center">{{ section.settings.heading }}</h2>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+    {% for block in section.blocks %}
+      <div class="bg-pure border-4 border-asphalt p-8 shadow-[6px_6px_0_0_#CCFF00] transition-shadow duration-300 hover:shadow-[10px_10px_0_0_#CCFF00] text-center flex flex-col items-center">
+        <div class="w-16 h-16 bg-asphalt text-brand flex items-center justify-center font-headline text-3xl mb-6 transform -rotate-3 border-2 border-asphalt transition-colors duration-300">0{{ forloop.index }}</div>
+        <h3 class="font-headline text-2xl uppercase mb-4">{{ block.settings.title }}</h3>
+        <p class="font-bold text-asphalt/70">{{ block.settings.text }}</p>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+{% schema %}
+{
+  "name": "Multicolumn",
+  "settings": [
+    { "type": "text", "id": "heading", "default": "The Standard", "label": "Heading" }
+  ],
+  "blocks": [
+    {
+      "type": "column",
+      "name": "Column",
+      "settings": [
+        { "type": "text", "id": "title", "default": "Heavyweight", "label": "Title" },
+        { "type": "textarea", "id": "text", "default": "Premium 300gsm cotton. Built to last.", "label": "Text" }
+      ]
+    }
+  ],
+  "presets": [{ "name": "Multicolumn", "blocks": [{"type": "column"}, {"type": "column"}, {"type": "column"}] }]
+}
+{% endschema %}`);
+
+  // Newsletter
+  sectionsFolder?.file('newsletter.liquid', `<section class="border-t-4 border-asphalt">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32 flex flex-col items-center text-center">
+    <h2 class="font-headline text-6xl text-asphalt uppercase mb-6">{{ section.settings.heading }}</h2>
+    <p class="font-bold text-asphalt/80 text-lg max-w-xl mb-12">{{ section.settings.text }}</p>
+    {% form 'customer', class: 'flex w-full max-w-2xl shadow-[8px_8px_0_0_#CCFF00]' %}
+      <input type="hidden" name="contact[tags]" value="newsletter">
+      <input type="email" name="contact[email]" placeholder="ENTER YOUR EMAIL" class="flex-grow bg-pure border-4 border-asphalt border-r-0 p-5 font-bold text-lg text-asphalt focus:outline-none placeholder-asphalt/40" required>
+      <button type="submit" class="bg-asphalt text-pure font-headline tracking-widest text-xl px-10 py-5 font-bold uppercase hover:bg-brand hover:text-asphalt border-4 border-asphalt transition-colors">Join</button>
+    {% endform %}
+  </div>
+</section>
+{% schema %}
+{
+  "name": "Email Signup",
+  "settings": [
+    { "type": "text", "id": "heading", "default": "Join The Crew", "label": "Heading" },
+    { "type": "textarea", "id": "text", "default": "Subscribe to get early access to drops, exclusive content, and 10% off your first order.", "label": "Text" }
+  ],
+  "presets": [{ "name": "Email Signup" }]
+}
+{% endschema %}`);
+
+  // Main Product
+  sectionsFolder?.file('main-product.liquid', `<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+  <div class="flex flex-col md:flex-row gap-12">
+    <div class="md:w-1/2 border-4 border-asphalt shadow-[8px_8px_0_0_#111111] bg-pure p-4">
+      <img src="{{ product.featured_image | image_url: width: 1000 }}" alt="{{ product.title }}" class="w-full h-auto object-cover">
+    </div>
+    <div class="md:w-1/2 flex flex-col justify-center">
+      <h1 class="font-headline text-5xl md:text-7xl uppercase text-asphalt mb-4">{{ product.title }}</h1>
+      <p class="font-bold text-2xl text-asphalt mb-8">{{ product.price | money }}</p>
+      <div class="prose font-mono text-asphalt mb-8">{{ product.description }}</div>
+      {% form 'product', product %}
+        <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
+        <button type="submit" class="w-full bg-brand text-asphalt font-headline tracking-widest text-2xl px-8 py-6 font-bold uppercase border-4 border-asphalt shadow-[6px_6px_0_0_#111111] hover:translate-y-1 hover:shadow-[2px_2px_0_0_#111111] transition-all">Add to Cart</button>
+      {% endform %}
+    </div>
+  </div>
+</section>
+{% schema %} { "name": "Product Information" } {% endschema %}`);
+
+  // Main Collection
+  sectionsFolder?.file('main-collection.liquid', `<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+  <h1 class="font-headline text-6xl uppercase text-asphalt mb-8">{{ collection.title }}</h1>
+  {% if collection.description != blank %}
+    <div class="font-bold text-lg mb-12 max-w-2xl">{{ collection.description }}</div>
+  {% endif %}
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+    {% for product in collection.products %}
+      <div class="group cursor-pointer flex flex-col">
+        <div class="bg-pure aspect-[3/4] border-4 border-asphalt mb-6 relative overflow-hidden flex items-center justify-center shadow-[6px_6px_0_0_#111111] group-hover:shadow-[10px_10px_0_0_#CCFF00] transition-all duration-300 group-hover:-translate-y-2">
+          <img src="{{ product.featured_image | image_url: width: 800 }}" alt="{{ product.title }}" class="object-cover w-full h-full" loading="lazy">
+          <div class="absolute bottom-4 left-4 right-4 translate-y-[150%] group-hover:translate-y-0 transition-transform duration-300 z-20">
+            <a href="{{ product.url }}" class="block text-center w-full font-headline tracking-widest text-lg px-4 py-4 font-bold uppercase border-2 border-asphalt transition-colors bg-pure text-asphalt hover:bg-brand">View Product</a>
+          </div>
+        </div>
+        <div class="flex justify-between items-start flex-grow">
+          <div>
+            <h3 class="font-headline text-2xl text-asphalt uppercase mb-2 group-hover:text-brand transition-colors leading-none">{{ product.title }}</h3>
+          </div>
+          <p class="font-bold text-xl text-asphalt">{{ product.price | money }}</p>
+        </div>
+      </div>
+    {% else %}
+      <p class="font-bold text-xl">No products found in this collection.</p>
+    {% endfor %}
+  </div>
+</section>
+{% schema %} { "name": "Product Grid" } {% endschema %}`);
+
+  // Main Cart
+  sectionsFolder?.file('main-cart.liquid', `<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+  <h1 class="font-headline text-6xl uppercase text-asphalt mb-12">Your Cart</h1>
+  {% if cart.item_count > 0 %}
+    <form action="{{ routes.cart_url }}" method="post" novalidate class="bg-pure border-4 border-asphalt shadow-[8px_8px_0_0_#111111] p-8">
+      <div class="hidden md:grid grid-cols-6 gap-4 border-b-4 border-asphalt pb-4 mb-6 font-headline text-xl uppercase">
+        <div class="col-span-3">Product</div>
+        <div>Quantity</div>
+        <div>Total</div>
+        <div></div>
+      </div>
+      {% for item in cart.items %}
+        <div class="grid grid-cols-1 md:grid-cols-6 gap-4 items-center border-b-2 border-asphalt/20 pb-6 mb-6">
+          <div class="col-span-3 flex items-center gap-6">
+            <img src="{{ item.image | image_url: width: 200 }}" alt="{{ item.title }}" class="w-24 h-32 object-cover border-2 border-asphalt">
+            <div>
+              <a href="{{ item.url }}" class="font-headline text-2xl uppercase hover:text-brand transition-colors">{{ item.product.title }}</a>
+              {% unless item.product.has_only_default_variant %}
+                <p class="font-bold text-sm text-asphalt/60 mt-1">{{ item.variant.title }}</p>
+              {% endunless %}
+              <p class="font-bold mt-2">{{ item.price | money }}</p>
+            </div>
+          </div>
+          <div>
+            <input type="number" name="updates[]" value="{{ item.quantity }}" min="0" class="w-20 border-2 border-asphalt p-2 font-bold text-center bg-bglight focus:outline-none">
+          </div>
+          <div class="font-bold text-xl">{{ item.final_line_price | money }}</div>
+          <div class="text-right">
+            <a href="{{ item.url_to_remove }}" class="text-sm font-bold uppercase tracking-widest hover:text-red-500 underline decoration-2 underline-offset-4">Remove</a>
+          </div>
+        </div>
+      {% endfor %}
+      <div class="flex flex-col items-end mt-8">
+        <p class="font-headline text-3xl uppercase mb-4">Subtotal: {{ cart.total_price | money }}</p>
+        <p class="font-bold text-sm text-asphalt/60 mb-8">Taxes and shipping calculated at checkout</p>
+        <div class="flex gap-4">
+          <button type="submit" name="update" class="bg-pure text-asphalt font-headline tracking-widest text-lg px-8 py-4 font-bold uppercase border-4 border-asphalt shadow-[4px_4px_0_0_#111111] hover:translate-y-1 hover:shadow-[2px_2px_0_0_#111111] transition-all">Update</button>
+          <button type="submit" name="checkout" class="bg-brand text-asphalt font-headline tracking-widest text-lg px-8 py-4 font-bold uppercase border-4 border-asphalt shadow-[4px_4px_0_0_#111111] hover:translate-y-1 hover:shadow-[2px_2px_0_0_#111111] transition-all">Checkout</button>
+        </div>
+      </div>
+    </form>
+  {% else %}
+    <div class="text-center py-20 bg-pure border-4 border-asphalt shadow-[8px_8px_0_0_#111111]">
+      <p class="font-headline text-3xl uppercase mb-8">Your cart is empty.</p>
+      <a href="{{ routes.all_products_collection_url }}" class="inline-block bg-brand text-asphalt font-headline tracking-widest text-lg px-8 py-4 font-bold uppercase border-4 border-asphalt shadow-[4px_4px_0_0_#111111] hover:translate-y-1 hover:shadow-[2px_2px_0_0_#111111] transition-all">Continue Shopping</a>
+    </div>
+  {% endif %}
+</section>
+{% schema %} { "name": "Cart" } {% endschema %}`);
+
+  // Main Search
+  sectionsFolder?.file('main-search.liquid', `<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+  <h1 class="font-headline text-6xl uppercase text-asphalt mb-8 text-center">Search</h1>
+  <form action="{{ routes.search_url }}" method="get" role="search" class="max-w-2xl mx-auto mb-16 flex shadow-[6px_6px_0_0_#111111]">
+    <input type="search" name="q" value="{{ search.terms | escape }}" placeholder="Search products..." class="flex-grow bg-pure border-4 border-asphalt border-r-0 p-4 font-bold text-lg focus:outline-none">
+    <button type="submit" class="bg-brand text-asphalt font-headline tracking-widest text-lg px-8 py-4 font-bold uppercase border-4 border-asphalt hover:bg-asphalt hover:text-brand transition-colors">Search</button>
+  </form>
+  
+  {% if search.performed %}
+    <h2 class="font-headline text-3xl uppercase mb-8">{{ search.results_count }} results for "{{ search.terms }}"</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+      {% for item in search.results %}
+        {% if item.object_type == 'product' %}
+          <div class="group cursor-pointer flex flex-col">
+            <div class="bg-pure aspect-[3/4] border-4 border-asphalt mb-6 relative overflow-hidden flex items-center justify-center shadow-[6px_6px_0_0_#111111] group-hover:shadow-[10px_10px_0_0_#CCFF00] transition-all duration-300 group-hover:-translate-y-2">
+              <img src="{{ item.featured_image | image_url: width: 800 }}" alt="{{ item.title }}" class="object-cover w-full h-full" loading="lazy">
+              <div class="absolute bottom-4 left-4 right-4 translate-y-[150%] group-hover:translate-y-0 transition-transform duration-300 z-20">
+                <a href="{{ item.url }}" class="block text-center w-full font-headline tracking-widest text-lg px-4 py-4 font-bold uppercase border-2 border-asphalt transition-colors bg-pure text-asphalt hover:bg-brand">View Product</a>
+              </div>
+            </div>
+            <div class="flex justify-between items-start flex-grow">
+              <div>
+                <h3 class="font-headline text-2xl text-asphalt uppercase mb-2 group-hover:text-brand transition-colors leading-none">{{ item.title }}</h3>
+              </div>
+              <p class="font-bold text-xl text-asphalt">{{ item.price | money }}</p>
+            </div>
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  {% endif %}
+</section>
+{% schema %} { "name": "Search Results" } {% endschema %}`);
+
+  // Main Page
+  sectionsFolder?.file('main-page.liquid', `<section class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+  <h1 class="font-headline text-6xl uppercase text-asphalt mb-12 text-center">{{ page.title }}</h1>
+  <div class="bg-pure border-4 border-asphalt shadow-[8px_8px_0_0_#111111] p-8 md:p-12 prose prose-lg font-mono text-asphalt max-w-none">
+    {{ page.content }}
+  </div>
+</section>
+{% schema %} { "name": "Page" } {% endschema %}`);
+
+  // Main 404
+  sectionsFolder?.file('main-404.liquid', `<section class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-32 text-center">
+  <h1 class="font-headline text-9xl uppercase text-brand drop-shadow-[3px_3px_0_#111111] mb-8">404</h1>
+  <p class="font-bold text-2xl mb-12">Page not found. You took a wrong turn.</p>
+  <a href="{{ routes.root_url }}" class="inline-block bg-pure text-asphalt font-headline tracking-widest text-lg px-8 py-4 font-bold uppercase border-4 border-asphalt shadow-[4px_4px_0_0_#111111] hover:translate-y-1 hover:shadow-[2px_2px_0_0_#111111] transition-all">Back to Home</a>
+</section>
+{% schema %} { "name": "404" } {% endschema %}`);
+
+  // Main List Collections
+  sectionsFolder?.file('main-list-collections.liquid', `<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+  <h1 class="font-headline text-6xl uppercase text-asphalt mb-12 text-center">Collections</h1>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+    {% for collection in collections %}
+      <a href="{{ collection.url }}" class="group block bg-pure border-4 border-asphalt shadow-[8px_8px_0_0_#111111] hover:shadow-[12px_12px_0_0_#CCFF00] transition-all hover:-translate-y-2 overflow-hidden">
+        {% if collection.image %}
+          <img src="{{ collection.image | image_url: width: 600 }}" alt="{{ collection.title }}" class="w-full h-64 object-cover border-b-4 border-asphalt">
+        {% else %}
+          <div class="w-full h-64 bg-asphalt flex items-center justify-center border-b-4 border-asphalt">
+            <span class="font-headline text-4xl text-brand uppercase">{{ collection.title }}</span>
+          </div>
+        {% endif %}
+        <div class="p-6 text-center bg-pure">
+          <h2 class="font-headline text-3xl uppercase text-asphalt group-hover:text-brand transition-colors">{{ collection.title }}</h2>
+        </div>
+      </a>
+    {% endfor %}
+  </div>
+</section>
+{% schema %} { "name": "Collections List" } {% endschema %}`);
+
+  // Footer
+  sectionsFolder?.file('footer.liquid', `<footer class="bg-asphalt text-pure border-t-4 border-brand transition-colors duration-300">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+      <div class="col-span-1 md:col-span-2">
+        <div class="w-32 text-brand mb-6 transition-colors duration-300">
+          {% render 'icon-logo', class: 'w-full h-full' %}
+        </div>
+        <p class="font-bold text-sm text-pure/60 max-w-sm leading-relaxed">{{ section.settings.text }}</p>
+      </div>
+      <div>
+        <h4 class="font-headline text-2xl uppercase mb-6 text-brand transition-colors duration-300">Shop</h4>
+        <ul class="space-y-4 font-bold text-sm">
+          {% for link in linklists.footer.links %}
+            <li><a href="{{ link.url }}" class="hover:text-brand transition-colors">{{ link.title }}</a></li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+    <div class="border-t-2 border-pure/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+      <p class="font-bold text-xs text-pure/40">&copy; {{ 'now' | date: "%Y" }} {{ shop.name }}. ALL RIGHTS RESERVED.</p>
+    </div>
+  </div>
+</footer>
+{% schema %}
+{
+  "name": "Footer",
+  "settings": [
+    { "type": "textarea", "id": "text", "default": "Setting the standard for brutalist streetwear. No compromises, just raw expression.", "label": "Text" }
+  ]
+}
+{% endschema %}`);
+
+  // --- SNIPPETS ---
+  const snippetsFolder = zip.folder('snippets');
+  
+  snippetsFolder?.file('icon-logo.liquid', `<svg viewBox="0 0 614.7 308.13" class="{{ class }}">
+    <path fill="currentColor" d="M433.02,4.35c-.09.42.26.92.23,1.35-2.35,7.15-5.08,11.01-5.95,19.01,2.18-2.74,4.74-2.76,6.42-4.54l4.81-5.09c3.74-3.72-2.92,9.59-2.15,8.03-.64,1.29-3.06,3.42-2.19,4.88,2.22,1.67,2.41,4.04,1.54,6.56,4.44-.41,7.48-3.27,11.44-4.73,8.97-3.31,17.56-7.37,26.79-9.66,5.16-1.28,10.34-3.04,15.59-3.21,5.23-.16,17.92,1.27,22.22,4.82l4.41,3.63c.71.58,1.13,1.97,2.2,2.35,4.27,6.49,5.08,14.24,3.35,21.77-.22.95-1.15,2.12-1.02,3.12-9.32,18.03-30.43,28.68-50.16,32.63.54,2.82,2.26,4.28,3.53,6.43,8.54,14.4,17.51,28.35,28.11,41.56,3.38.2,4.91-4.08,5.71-6.78l3.73-12.68c2.53-8.62,4.77-16.97,8.2-25.33.25-.6.1-1.21.08-1.59s-.56-.67-.94-.56c-1.9.57-1.12,5.86-4.98,9.17.12-.89.45-2.03.02-2.91,4.42-7.84-.93-15.14,2.18-20.38,3.18-5.35,13.75-4.94,13.24-8.62-.03-.19-.02-.48.05-.65.74.39.75-.37.69-.84.25-.34.91-1.03.75-1.48.47,0,.91-.99,1.23-.79,1.01.61-.48,1.35.97,3.12,1.73-5.13,4.09-10,7.06-14.88.67-1.11.79-2.51-.84-3.11l-6.34,15.06c-1.64-2.37,1.03-3.73,1.31-5.62.34-2.36,1.53-4.93,2.04-7.18-1.13-1.45-4.51-1.87-5.12-4.13-.78-2.9-.27-5.67-.22-8.32,3.23-4.15,8.01-5.78,12.91-8.16l4.1-1.99c2.64-.29,5.9-.8,5.7-3.91.47-.23,1.54-.66,1.45-1.38,2.14-.66,4.28-1.41,6.2-2.6,1.03-.21,2.08-.24,3.12-.11.27.07.51.29.78.33.23.03.55.12.78.07.31.55.96.66,1.55.69.3.3,1.07.78,1.5.78.31.97.5,4.15,2.38,3.97,11.64-1.1,22.85-1.91,34.36-3.63,4.11-.62,8.42.72,8.85,5.06.19.76-.48,1.6-.37,2.32-4.46,1.75-1.15,11.15-9.52,11.27-3.61.05-6.98.92-10.6,1.27l-29.6,2.88c-2.16,2.24-9.01,16.56-8.77,19.66h21.91c3.35,0,6.44-.15,9.31.77.62,1.19.97,2.47.93,3.82-1.34,1.51-.36,3.77-.82,5.64l-.76.7c-2.58-.8-2.9,2.9-4.16,3.55-5.24,3.34-36.02,3.83-38.36,7.02s-3.47,7.1-5.02,10.81c-1.13,2.7-2.96,4.91-3.18,7.61-.02.21,0,.45.02.66-.78.19-1.2.96-1.49,1.94l-5.08,17.14,20.13-7.67,11.09-4.36,12.76-4.61c4.82-1.74,9.25-3.8,14.05-4.22.23-.02.49.16.72.21-.06.8-.07,1.61-.03,2.41-.32.15-.47.76-.78.86-2.39.65-3.9,3.04-6.27,4.18.86,1.58,2.44,4.09,1.12,5.2-4.04,3.38-8.65,5.57-13.46,7.8l-50.45,23.5c-1.99.92-4.15,1.81-5.1,3.77,3.54,4.62,9.09,8.34,10.5,14.25.22,2.59-4.77,2.07-7.57,1.38,3.88,7.99,3.29,16.21.19,23.9-2.27,5.64-6.29,16.79-15.03,13.67-1.36-.48-2.56-2.37-4.27-1.58-.25-.89-1.03-1.64-1.24-2.56-.9-4.18,7.23-16.5,4.1-16.97-10.58,5.38-19.99,12.57-29.14,19.86-3.14,2.5-5.21,5.75-8.47,7.96-1.5,1.02-2.36,2.12-2.34,3.72.03,2.17,1.91,2.66,4.1,2.65,10.55-.06,31.71-2.55,36.25,8.68s-1.3,20.33-9.04,27.98c-6,5.93-11.97,11.37-19.17,15.98-2.18,1.39-3.89,3.35-6.33,4.57l-20.2,10.07c-8.21,4.09-16.66,6.88-24.8,11.21-6.67,3.55-12.92,7.31-19.66,10.75l-5.7,2.91c-.27.01-.54-.06-.8-.03.13-.93-.48-3.06.65-3.91l6.14-4.6c1.72-1.29,2.88-2.19,4.54-3.57l6.67-5.54c-5.48-.35-17.59,10.59-22.55,10.56,0-1.46,1.7-1.48,2.69-2.44,2.68-2.6,5.27-4.78,8.13-6.71.9-.61,1.73-1.35,2.3-2.29.68.12,1.12-.6,1.63-.81,7.39-3.04,13.88-7.7,21.17-11.83,14.6-8.26,28.75-16.87,41.44-27.86,4.89-4.23,9.43-8.15,13.49-13.03.63-.76.31-2.35-.05-2.89s-1.59-1.01-2.69-1.01l-23.36.03c-5.26,0-10.48-2.43-12.87-6.23-9.04-14.37,4.44-24.32,13.97-32.93,2.44-2.2,4.7-3.65,7.42-5.44,3.24-2.14,5.81-4.98,9.44-6.9,17.58-9.29,7.85-8.86,12.29-11.3,4.91-2.7-1.46,2.71,9.38-2.9,4.76-2.47,9.05-3.66,14.7-4.25l-6.71-2.35c-9.34-3.28-16.73-8.24-21.57-16.85-1.29-2.29-2.16-3.75-2.28-6.82-.16-4.29-4.17-7.62-6.4-10.97l-6.31-9.51c-1.81-2.73-3.29-5.85-6.74-6.9l18.44,27.84c-7.04-3.71-10.12-10.8-14.26-16.59-3.74-5.24-7.98-9.42-10.92-16.09l-14.27,34.56c-1.19,2.89-2.89,5.38-3.91,8.41-.64,1.89-1.95,3.52-3.76,3.32l-.59-.63c-1.6-6.83,5.91-8.85,3.36-15.42-.95.16-1.89.74-2.26.42-.51-.45-.48-1.11-.82-2.17-1.46,1.44-3.11,3.1-3.32,5.55s-6.02,11.91-7.87,13.66c-.76-.07-1.48-.66-2.25-.69,2.56-11.18,6.65-12.71,9.03-26.33.19-1.11.94-2.74,1.45-4.24l16.68-49.5c.94-2.78,2.35-5.16,1.82-8.05l-2.5,2.17c-.54.46-1.58-.31-2.31-.55-.46-1.51.21-3.18.53-4.64,2.42-1.64,4.01-4.66,4.72-8.16l-19.6,7.79c-3.11,7.23-4.73,14.08-7.03,21.35l-11.04,34.88c-2.03,6.4-4.75,11.9-8.18,17.65-2,3.35-1.99,8.04-4.74,10.91-1.1,1.15-3.72.42-4.66,1.67-.72-.28-1.85-.31-2.41-1.04.43-8.47-1.99-4.97-2.41-7.1-1.1-5.56.15-10.73,1.39-16.79-3.38,1.91-5.58,4.95-7.87,8.05-8.22,11.13-24.12,23.15-38.44,13.28s-8.48-40.15-3.15-54.92c3.87-10.73,6.9-21.49,11.9-31.68,2.08-4.23,4.84-7.76,6.34-12.57-9.35,1.52-18,3.17-27.23,3.17-2.34,0-3.7,1.72-4.39,3.75-8.12,23.91-20.42,45.18-29.38,69.52-3.06,8.33-6.2,16.29-7.93,24.9l-4.22,21.01c8.88,6.02,11.65,16.36,7.31,25.77-6.61,14.34-18.99,20.36-32.88,25.83-3.52,1.39-6.63,2.05-10.94,2.56,12.26,20.45,25.03,39.08,39.52,57.04,2.58,3.2,5.62,5.52,6.27,9.47-.22,2.17-2.82,1.2-4.11,1.94l-21.05-8.34c-6.41-2.54-11.24-8.92-13.58-15.5-.71-1.98.04-3.96-1.46-6.06l-16.79-23.6c-1.38,4.54,14.45,20.88,16.28,27.58-5.81-3.75-8.5-9.86-12.25-15.21-2.74-3.91-5.74-7.6-8.24-11.57-2.91,2.39-2.76,5.53-3.99,8.34-2.44,5.61-4.81,10.98-6.82,16.72-1.37,3.91-3.8,7.16-4.59,10.94-.04.2-.11.51-.06.71-.9-.28-.73,1.03-.82,1.58-1.1.65-1.95-.07-3.02-.1-1.2-5.12,6.04-11.9,2.82-13.54-.41-.21-1.17.92-1.53.69-.58-.37-.82-1.17-1.61-1.95-1.97,1.89-2.43,4.65-3.69,7.17-1.35,2.71-3.35,4.93-3.77,7.71-.28.11-.51.62-.78.8-.64.08-1.25.33-1.66.83-.23-.14-.68-.12-.96-.15-.04-1.25.02-2.5.19-3.75,3.09-6.16,5.27-12.44,7.57-19.33l16.71-49.88c1.74-5.19,4.25-9.64,5.42-14.9-1.94-.4-1.2,1.65-1.88,2.52-4.41,5.7-2.77,9.26-5.45,10.62-.52.27-1.75.05-1.76-.77-.09-4.29,3.3-6.2,4.59-10.33-5.41,2.04-10.24,3.7-15.27,6.33-1.97,8.07-4.57,16.16-9.23,23.26-2.37,3.62-5.45,6.51-8.04,9.92-7.94,10.49-16.95,19.27-27.42,27.17l-15.58,11.77-16.92,12.73c-6.26,4.71-12.52,9.21-20.2,12.27l13.05-10.12-33.83,18.34c-1.09.59-3.07,1.01-3.78.28-.6-.62-2.06-2.02-1.47-2.93,1.93-2.9,5.65-3.21,8.06-5.3,3.05-2.64,6.33-4.56,9.48-6.99,2.29-1.76,3.69-4.49,6.74-5.69.61-.24.98-1.17,1.08-1.57.07-.27-.41-1.34-.83-1.11l-14.05,7.57c-4.16,2.24-8,4.21-11.89,6.99-.63.45-1.92.48-2.67.7-.5.15-.95-.67-1.07-1.37,0-.44.33-.91.26-1.35,6.19-2.15,14.05-9.79,20.36-13.66,2.32-1.42,3.71-2.92,5.55-4.81,2.25-2.31,6.43-2.83,8.13-5.84,1.22-2.16,1.72-5.4,2.36-7.89l4.92-19.12c-4.49,4.28-11,27.27-13.53,28.24-1.37.52-4.3.12-5.49-1.54-2.84-3.98-1.41-9.19.05-13.8,6.45-20.34,14.11-39.63,21.91-59.49l6.12-15.59c-7.23.76-11.68,5.05-17.43,7.26-2.77,1.06-5.88,1.01-8.09,3.32-1.72,0-3.88.27-5.15-1.35l.96-3.62,5.5-5.47c-3.62-.56-4.53,2.34-6.89,2.48-.47-.79-2.33-1.26-1.31-2.96s1.68-3.39,2.03-5.05c7.09-3.67,13.49-8.56,21.36-11.45,6.11-2.25,12.08-4.02,17.67-6.54.41.13,1.01-.07,1.45-.06.85.02,2.33.37,2.67-.65,1.37-.34,3-.8,4.42-.78.81-.07,2.03.32,2.44-.59l1.47-.2c14.1-1.91,38.25-1.65,48.28,11.79,7.83,10.5,6.04,18.84,10.88,15.46,5.62-3.93,11.84-5.47,17.94-8.28,11.05-5.09,22.15-8.7,34.85-9.48.85-5.86.7-11.29,1.96-16.93l2.28-10.2c.87-3.89,2.03-7.37,2.79-11.22.24-1.21,2.74-3.18,1.08-4.35-.93-.59-3.95.09-4.69.91-1.14,6.15-9.22,4.7-12.86,7.61,2.66,1.47,5.07-1.83,6.99.3-17.45,7.45-34.74,10.78-52.4,18.79-1.67,1.8-1.78,6.83-4.84,7.12s-9.88-1.94-13.52-4.16c-.89-.54-.56-2.59-1.65-2.57-1.72.03-4.84,1.35-6.41-.65-.81-1.03.91-2.5.72-3.36-.63-1.5-2.6-3.04-2.48-4.9.21-.41-.11-1.08.06-1.52,1.39-1.19,3.01-2.08,4.99-2.86l7.37-2.89c2.14-11.18,6.42-21.34,10.79-31.84,1.06-2.56,2.68-5.04,2.16-7.88-2.47,3.92-4.45,7.83-5.56,11.86-1.37,4.97-3.05,4.76-6.38,13.96-2.03-.93.27-3.06.08-4.46,1.76-2.23.66-5.61,1.78-8.24,1.33-3.13,6.07-12.13,7.48-15.21l14.52-31.51c1.5-3.26,2.97-5.95,4.92-8.9,3.62-5.5,4.75-12.61,9.25-17.49,1.8-1.95,2.14-3.76,3.54-6.01,2.67-4.29,10.45-4.97,14.77-2.79s-1.94,14.58-2.6,16.48c-3.78,10.91-8.3,20.91-12.98,31.49-6.2,13.99-11.49,27.71-16.73,41.9-1.4,3.78-3.04,7.05-3.83,11.55l24.74-6.15c3.21.12,6-1.11,9.02-1.77,8.75-1.9,17.29-1.96,26.68-2.44l21.89-52.06c1.15-2.73,3.03-4.31,3.46-8.13-7.67,1.94-16.03.98-23.95,3.51-5.92,1.89-12.35-.29-14.28-6.47-.64-2.05-.8-5.7-.31-7.84,1.34-5.77,23.68-8.55,30-9.75,14.62-2.78,28.84-5.63,43.74-6.68,3.94-.28,7.36-.92,11.14-1.21l29.58-2.32c1.85-.14,3.33.81,4.76,1.42,6.11-3.02,13.88-4.77,20.75-2.62,1.71.54,1.15,3.78.34,4.47l-1.68,1.44c-4.14.73-16.69-2.98-16.79,2.9-.05,2.7,6.27.02,9.61,1.85-.33.35-.47,1.15-.73,1.59-.5-.05-1.12.09-.74.75l-.68.12-8.58,1.07c-1.57.19-2.78,1.25-4.09,1.73,1.86.85,3.21-.57,4.86.7-4.99,1.54-10.02,2.07-15.47,3.22-1.31.28-1.23,3.62-.25,4.08,1.24.58,3.81-1.02,4.6.46,1.02,1.9.44,5.76-.65,8.18-8.24,18.42-14.85,36.93-18.7,56.92-.85,4.43-1.41,10.23,1.13,13.77,6.59,4.34,27.73-30.22,31.3-35.76,4.36-6.76,8.92-13.05,12.57-20.17l5.3-10.34,12.13-24.54c1.97-3.99,12.2-16.42,11-19.58-.06-.15,0-.35,0-.52.2,3.42,3.75-6.83,3.14-6.37.59.21,1.36-.22,1.97-.11ZM496.61,40.07l-.15-.51c-.95-3.27-5.49-3.37-9.01-2.7-4.07.77-21.44,2.84-22.58,5.4-1.84,4.1,4.64-.95,7.58,2.13,1.32,1.38.5,3.12-.38,4.92-1.32,2.69-1.19,5.72-2.12,8.59-1.18,3.64-2.86,7.03-3.3,10.91,10.2.15,44.35-15.61,32.48-28.26-.45-.48-1.98-.26-2.52-.49ZM459.05,106.18c0-.22-.17-.39-.39-.39s-.39.17-.39.39.17.39.39.39.39-.17.39-.39ZM279.19,161.63c-1.03-2.75-1.28-4.35-1.88-6.76-1.75,1.56-2.62,3.51-2.34,5.52.66.91,2.89.96,4.22,1.24ZM122.52,260.55c20.84-13.41,38.81-28.45,54.3-46.39,7.94-9.19,19.05-24.95,10.49-36.71-5.12-7.03-20.22-8.69-28.12-7.56-2.63.38-5.59-.45-7.75,1.41,1.78,2.51,4.2,6.21,2.89,9.23l-14.11,32.37c-.86,1.98-2.07,3.35-2.85,5.22l-13.18,31.51c-.67,3.75-2.88,7.2-1.67,10.92ZM270.27,179.39c-.54-.01-1.64,1.15-2.06.94-2.19-1.07-1.94-2.01-3.9-4.25-7.91.71-15.7,1.75-23.23,4.92.36,3.49,5.08-1.78,7.63.39.63.54.96,1.8.61,2.97l-5.66,18.87c7.14,2.2,39.28-14.77,26.6-23.85Z"/>
+    <path fill="currentColor" d="M351.87,295.53c-.08-.54-.33-1.04-.5-1.56.42-4.94,2.29-9.62,2.11-14.9l-4,3.53c-1.44-3.94.34-7.32,1.25-10.93,2.02-8.01,4.88-15.39,7.44-23.25.95-2.91,1.83-5.89.06-8.38-1.41-1.99-3.86-3.16-5.76-3.51-.75-6.77,10.7-3.21,12.17-7.14l5.95-16.01c.92-2.46.86-4.72,2.2-7.1,2.82-5.05,4.11-10.67,6.64-16.14-3.15-.75-14.14,7.63-15.6,1.59-.51-2.09.18-4.47-.65-6.25-1.18-2.55,1.94-2.71,2.39-3.77,1.08-2.56.83-4.99,3.74-6.54,16.06-8.54,41.63-15.54,59.08-7.96,2,.87,5.27,2.3,6.79,3.81,10.41,10.38,9.58,26.22.7,37.2-12.19,15.07-37.44,31.2-56.97,34.26-1.83,1.84-1.62,4.22-2.58,6.37l-14.25,31.65c-1.55,3.44-5.84,16.9-10.19,15.05ZM386.74,222.52c11.95-5.58,22.07-12.23,31.59-19.93,4.24-3.43,8.76-10.32,6.53-15.91-2.83-7.08-19.71-6.34-26.86-3.37,3.21,2.26,2.44,4.92,1.27,7.74l-5.26,12.65c-2.61,6.27-5.61,11.97-7.27,18.82Z"/>
+    <path fill="currentColor" d="M67.32,300.21c0-.29.07-.61,0-.89,1.31-1.48,3.28-1.97,5.01-3.29s3.57-3.29,5.89-1.46c.45.36.56,1.36,1.12,1.62.66.3,1.46.07,2.23-.5.92,3.35-1.49,4.47-3.77,5.74-2.69,1.49-4.54,1.89-7.23.42-.53-.29-2.11,1.29-2.72.36-.31-.47-.51-1.26-.53-1.99Z"/>
+    <path fill="currentColor" d="M388.51,301.04c.14,1.85,1.79,2.06,3.91,2.85-1.19,1.51-2.79,1.07-2.85,2.4-.34.5-1.44.88-1.59,1.63-2.4-.21-5.16.99-7.09-.74.21-1.02.31-2.16.86-3.08.23-.38,1.04-.66,1.07-1.23.59-.13,1.4-.07,2-.27.4-.13,1.13-.21.98-.79l2.7-.77Z"/>
+    <path fill="currentColor" d="M78.91,65.86c-.25-.18-.48-.38-.69-.61-1-3.68-1.88-7.9.03-11.55,2.33-4.47,12.29-25.83,9.13-28.79-2.31-2.18-13.81,6.93-16.45,9.2-13.87,11.93-24.34,26.73-32.61,43.03-7.35,14.49-14.15,27.88-13.54,45.15.11,3.25,1.28,8.73,4.83,9.75,14.8,4.25,37.76-16.34,48.37-25.54,4.55-3.94,9.09-7.72,12.52-12.2.19-.25.62-.62.9-.77,2.27-1.17,4.08-3.55,5.36-5.74,2.21-.3,3.7-4.02,6.09-2.28-.04.51-.03,1.03,0,1.55-.39.6-1.14,1.59-.86,2.38-3.25,4.41-5.96,9.01-10.7,12.51-1.31.97-1.16,3.33-2.33,4.49-1.85,1.84-4.17,4.2-4.23,6.61,3.83,2.84,5.13-3.12,8.06-4.9.36.65,1.14,1.12.94,2.02-.39.22-2.46,1.1-2.24,1.42l1.15,1.69c1.23,1.81-34.52,45.94-65.52,42.13-8.44-1.04-16.61-5.86-21.47-12.97-10.02-14.68-5.27-46,3.04-61.1l.16,5.02,8.51-16.31c7.21-13.83,12.59-24.37,23.81-35.45.92-.91,1.35-2.53,1.63-3.82-4.49,2.81-7.1,6.82-10.92,11.09-.87-1.48.69-2.64.83-3.86.33-.08.56-.61.82-.82,4.19-3.39,7.26-7.91,10.84-11.93.26-.29.51-.78.84-.97,3.22-1.83,6.88-4.73,9.27-7.39,1.16-.29,2.44-1.94,3.34-2.51l4.26-2.69c8.59-5.41,17.56-9.5,28.24-8.48,5,.48,10.41,3.37,13.71,6.99s4.87,8.83,5.61,13.47c1.01,6.31-1.29,12.01-2.88,17.7-2.42,8.66-6.06,16.07-11.39,23.07-2.38,3.12-4.15,5.53-9.03,4.55-6.48-1.3-1.53-6.74-7.43-3.15Z"/>
+    <path fill="currentColor" d="M203.05,12.84c-1.88,3.76-3.18,8.04-3.65,12.43,1.91-2.24,2.83-4.68,5.75-3.36,1.5-1.27,2.33-2.72,3.26-4.12.3-.44,1.09-.52,1.49-.84l.82.71c.11.43-.11.93.03,1.35-2.16,2.33-2.99,5.63-4.68,8.62,2.62,2.27,2.12,4.75,1.15,7.38l-7.54,20.45c-2.61,7.08-4.92,13.83-7.15,21.06l-10.52,34.05c-2.16,7-5.94,12.85-8.52,19.55l-3.92,10.21c-1.89,4.92-7.44,3.24-7.22,3.4-.83-.59-1.22-1.84-1.64-2.88.05-.45-.26-1.11-.23-1.58.04-.66-.03-1.4-.58-1.85-.39-.32-.94-.37-1.42-.42l-.67-.06c-.78-5.43.82-10.62,1.14-16.54-3.69,1.88-5.26,4.78-7.34,7.46-5.81,7.47-13.03,13.22-22.09,16.12-3.94,1.26-7.5.49-11.19-1.05-8.77-3.64-3.46-2.09-10.42-6.91.02-.21-.06-.43-.06-.64-2.42-2.63-2.43-6.05-2.88-9.74-1.85-15.31,1.39-22.38,1.17-26.88-.01-.26.04-.53.06-.78,1.29-.21,1.32-1.62,1.65-2.92,1.92-7.51,10.86-32.38,10.91-33.82l.03-.78c.59.21.67-.33.69-.75.01-.25.07-.54.02-.78,1.72-.8,1.81-3,2.31-4.67.24-.2.37-.58.63-.75.58-.38.83-.97.89-1.64.04-.53.75-1.2.62-1.73,1.91-.71,2.67-2.65,3.08-4.54.05-.21.23-.47.18-.67.88.27.7-1.04.91-1.56,2.94-4.49,7.87-6.67,13.16-5.44.14,1.5-.27,3.08.49,4.7,13.39-5.12-2.63,22.27-5.07,30.45-3.16,10.61-6.18,20.93-8.72,31.75-1.39,5.91-2.36,12.03.91,17.47,5.24-1.25,8.97-5.09,11.95-9.14l5.65-7.68c3.02-4.11,5.29-8.2,8.11-12.32,5.39-7.86,10.37-15.48,15.12-23.73l4.25-7.37,17.49-35.04c.2-.39,9.28-11.96,8.28-14.24,4.43-6.01,1.19-4.44,4.39-9.31,1.89,3.21.82,5.64-1.05,9.38Z"/>
+    <path fill="currentColor" d="M214.05,10.66c-2.46.32-3.66-1.88-3.2-4.16.55-2.7,3.38-5.44,6.05-6.19,1.31-.37,2.21.84,2.36,1.5.84,3.55-2.18,5.09-5.21,8.86Z"/>
+    <path fill="currentColor" d="M15.61,66.06l.06-.78c.3-.25.63-.52.81-.88.15-.29.15-.66.28-.96,1.2-.48,1.12-1.98,2.51-2.68-1.49,3.92-2.5,8.05-5.81,11.43.53-2.18,1.96-3.9,2.14-6.13Z"/>
+    <path fill="currentColor" d="M356.07,181.3c8.87,9.8.4,35.02-4.34,45.95-4.34,10.03-11.52,18.46-19.62,25.81-5.65,5.13-11.12,10.03-18.37,12.68-12.85,4.68-25.44-1.95-31.1-14.22-3.02-6.55-2.13-13.51-.88-20.75s2.18-13.66,5.03-20.14c4.92-11.16,11.01-20.78,19.68-29.42,6.68-6.66,30.04-27.72,38.03-14.74.88,1.42,2.29,2.4,2.47,3.95.21,1.76-.72,3.25-2.02,4.98,1.19,1.74,3.82,1.28,5,2.76,10.75,13.46,4.81,25.43,1.91,39.51,4.97-7.31,6-16.06,6.43-24.45.21-4.14-2.8-7.41-2.25-11.9ZM336.43,215.06c.17-.48.18-1.03.31-1.52.06-.22-.08-.49-.05-.72l2.13-3.13-.38,8.72c3.58-3.59,3.9-8.44,5.29-13.14,1.77-6.01,4.82-17.42-2.46-21.42-4.2-2.31-12.13.87-16.15,4.95-6.79,6.89-5.37,6.37-11.31,13.4-.71-.25-.94-.53-1.22-.51-2.53.19-19.17,31.8-12.38,45.93.94,1.95,3.17,3.15,5.38,2.09,2.92-1.4,6.4-2.25,9.01-4.38,9.84-8.04,17.64-18.62,21.83-30.28Z"/>
+    <path fill="currentColor" d="M438.1,5.92l.04-2.14c2.73.28,4.11-5.89,8.36-3.01,3.77,2.55-4.27,9.23-5.39,9.52-2.35.6-3.04-2.95-3.01-4.37Z"/>
+    <path fill="currentColor" d="M208.5,236.29c.23-1.04,1.43-1.86,1.51-3.04.04-.59.74-1.11.74-1.83,0-.99.56-2.03.28-3.04.53-.33.6-.99.63-1.57.72-.73.82-1.92.94-2.86,2.05-.72,1.15-3.17,1.42-4.95,1.44-3.07,2.25-6.55,4.32-9.23-.21,7.34-4.37,14.59-6.54,22.67l-2.97,11.09c-.86,3.2-1.43,6.24-4.15,8.27.7-6.07,2.16-8.03,3.83-15.53Z"/>
+    <path fill="currentColor" d="M439.74,72.77l-8.61,25.42c-1.41,4.17-1.96,8.29-3.77,12.51-1.69,3.94-2.82,8.27-3.37,12.15l-.86.9h-.78c.69-4.19,1.44-8.49,2.94-12.84l4.76-13.88c3.14-9.15,5.17-17.54,8.91-26.46.82.91.98,1.67.78,2.19Z"/>
+    <path fill="currentColor" d="M19.5,59.89c1.22-4.02,3.36-7.36,6.16-10.03-1.04,4.12-2.63,7.6-6.16,10.03Z"/>
+  </svg>`);
+
+  snippetsFolder?.file('icon-cart.liquid', `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="{{ class }}"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>`);
+  snippetsFolder?.file('icon-search.liquid', `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="{{ class }}"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>`);
+  snippetsFolder?.file('icon-account.liquid', `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="{{ class }}"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`);
+  snippetsFolder?.file('icon-menu.liquid', `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="{{ class }}"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>`);
+
+  // --- CONFIG ---
+  const configFolder = zip.folder('config');
+  configFolder?.file('settings_schema.json', `[
+  {
+    "name": "theme_info",
+    "theme_name": "Culture Drops (Dawn Brutalist Edition)",
+    "theme_author": "AI Studio",
+    "theme_version": "1.0.0",
+    "theme_support_url": "https://shopify.com"
+  }
+]`);
+
+  configFolder?.file('settings_data.json', `{
+  "current": {
+    "blocks": {},
+    "sections": {},
+    "content_for_index": []
+  }
+}`);
+
+  // Generate ZIP and trigger download
+  const content = await zip.generateAsync({ type: 'blob' });
+  saveAs(content, 'culture-drops-theme.zip');
+}
