@@ -1,40 +1,34 @@
-export const downloadSvg = (svgElement: SVGSVGElement, filename: string) => {
-  const serializer = new XMLSerializer();
-  const source = serializer.serializeToString(svgElement);
-  const blob = new Blob([source], { type: 'image/svg+xml;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = `${filename}.svg`;
-  link.click();
-  URL.revokeObjectURL(url);
+import { toPng, toJpeg, toSvg } from 'html-to-image';
+
+const options = {
+  skipFonts: true,
+  filter: (node: HTMLElement) => {
+    // Exclude Google Fonts links to avoid CORS errors
+    if (node.tagName === 'LINK' && node.getAttribute('href')?.includes('fonts.googleapis.com')) {
+      return false;
+    }
+    return true;
+  }
 };
 
-export const downloadImage = (svgElement: SVGSVGElement, format: 'png' | 'jpg', filename: string) => {
-  const canvas = document.createElement('canvas');
-  const serializer = new XMLSerializer();
-  const source = serializer.serializeToString(svgElement);
-  const img = new Image();
-  const blob = new Blob([source], { type: 'image/svg+xml;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
+export const downloadSvg = async (element: HTMLElement, filename: string) => {
+  const dataUrl = await toSvg(element, options);
+  const link = document.createElement('a');
+  link.href = dataUrl;
+  link.download = `${filename}.svg`;
+  link.click();
+};
 
-  img.onload = () => {
-    canvas.width = img.width;
-    canvas.height = img.height;
-    const ctx = canvas.getContext('2d');
-    if (ctx) {
-      if (format === 'jpg') {
-        ctx.fillStyle = 'white';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-      }
-      ctx.drawImage(img, 0, 0);
-      const dataUrl = canvas.toDataURL(format === 'png' ? 'image/png' : 'image/jpeg');
-      const link = document.createElement('a');
-      link.href = dataUrl;
-      link.download = `${filename}.${format}`;
-      link.click();
-    }
-    URL.revokeObjectURL(url);
-  };
-  img.src = url;
+export const downloadImage = async (element: HTMLElement, format: 'png' | 'jpg', filename: string) => {
+  let dataUrl: string;
+  if (format === 'png') {
+    dataUrl = await toPng(element, options);
+  } else {
+    dataUrl = await toJpeg(element, { ...options, backgroundColor: '#ffffff' });
+  }
+  
+  const link = document.createElement('a');
+  link.href = dataUrl;
+  link.download = `${filename}.${format}`;
+  link.click();
 };

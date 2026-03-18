@@ -11,7 +11,6 @@ import { Home } from './pages/Home';
 import { Brandbook } from './pages/Brandbook';
 import { AssetLibrary } from './pages/AssetLibrary';
 import { ShopifyTemplate } from './pages/ShopifyTemplate';
-import { SocialMediaAssets } from './pages/SocialMediaAssets';
 import { ScrollToTop } from './components/ScrollToTop';
 
 export default function App() {
@@ -51,7 +50,6 @@ export default function App() {
             <Route path="/brandbook" element={<Brandbook themeColors={themeColors} currentHex={currentHex} handleCopy={handleCopy} />} />
             <Route path="/assets" element={<AssetLibrary themeColors={themeColors} currentHex={currentHex} handleCopy={handleCopy} />} />
             <Route path="/shopify" element={<ShopifyTemplate />} />
-            <Route path="/social-media" element={<SocialMediaAssets themeColors={themeColors} currentHex={currentHex} handleCopy={handleCopy} />} />
           </Routes>
         </main>
 

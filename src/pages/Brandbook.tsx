@@ -1,6 +1,7 @@
 import React from 'react';
 import { LogoSVG } from '../LogoSVG';
-import { User, ShoppingBag, Search, Menu, X, ArrowRight, Heart, Tag } from 'lucide-react';
+import { XLogo, TikTokLogo } from '../components/Icons';
+import { User, ShoppingBag, Search, Menu, X as CloseIcon, ArrowRight, Heart, Tag, Share2, Filter, ArrowUpDown, Star, Check, Truck, Instagram, Facebook, Youtube, Linkedin, Music } from 'lucide-react';
 
 interface BrandbookProps {
   themeColors: Record<string, string>;
@@ -214,10 +215,22 @@ export function Brandbook({ themeColors, currentHex, handleCopy }: BrandbookProp
             { icon: ShoppingBag, label: 'Cart' },
             { icon: Search, label: 'Search' },
             { icon: Menu, label: 'Menu' },
-            { icon: X, label: 'Close' },
+            { icon: CloseIcon, label: 'Close' },
             { icon: ArrowRight, label: 'Arrow' },
             { icon: Heart, label: 'Wishlist' },
-            { icon: Tag, label: 'Label' }
+            { icon: Tag, label: 'Label' },
+            { icon: Share2, label: 'Share' },
+            { icon: Filter, label: 'Filter' },
+            { icon: ArrowUpDown, label: 'Sort' },
+            { icon: Star, label: 'Rating' },
+            { icon: Check, label: 'Check' },
+            { icon: Truck, label: 'Shipping' },
+            { icon: TikTokLogo, label: 'TikTok' },
+            { icon: Instagram, label: 'Instagram' },
+            { icon: Facebook, label: 'Facebook' },
+            { icon: Youtube, label: 'YouTube' },
+            { icon: XLogo, label: 'X' },
+            { icon: Linkedin, label: 'LinkedIn' }
           ].map(({ icon: Icon, label }) => (
             <div key={label} className="bg-pure border-2 border-asphalt p-4 group hover:bg-brand hover:-translate-y-1 shadow-[2px_2px_0_0_#111111] hover:shadow-[4px_4px_0_0_#111111] transition-all cursor-pointer">
               <Icon className="w-8 h-8 mx-auto mb-2 text-asphalt group-hover:scale-110 transition-transform" strokeWidth={2} />
