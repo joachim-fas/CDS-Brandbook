@@ -92,7 +92,7 @@ export function AssetLibrary({ themeColors, currentHex, currentTheme, handleCopy
             const innerContent = innerContentMatch[1];
             const svgTag = svgTagMatch[0];
             return `${svgTag}
-              <g transform="translate(4, 4)" color="#111111">${innerContent}</g>
+              <g transform="translate(2, 2)" color="#111111">${innerContent}</g>
               <g color="${hex}">${innerContent}</g>
             </svg>`;
           }
@@ -172,24 +172,26 @@ export function AssetLibrary({ themeColors, currentHex, currentTheme, handleCopy
     triggerDownload(url, filename);
   };
 
-  const downloadAsset = (Component: any, filename: string, format: 'svg' | 'png', colorHex: string = '#111111', withShadow: boolean = false, props: any = {}) => {
-    let svgString = renderToStaticMarkup(<Component {...props} />);
+  const downloadAsset = (Component: any, filename: string, format: 'svg' | 'png', colorHex: string = '#111111', withShadow: boolean = false, shadowColorOverride?: string) => {
+    let svgString = renderToStaticMarkup(<Component />);
     if (!svgString.includes('xmlns=')) {
       svgString = svgString.replace('<svg', '<svg xmlns="http://www.w3.org/2000/svg"');
     }
-    
+
     // Remove className to avoid confusion in raw SVG
     svgString = svgString.replace(/className="[^"]*"/g, '');
 
-    if (withShadow && colorHex !== '#111111') {
+    if (withShadow) {
       const innerContentMatch = svgString.match(/<svg[^>]*>([\s\S]*?)<\/svg>/);
       const svgTagMatch = svgString.match(/<svg[^>]*>/);
       if (innerContentMatch && svgTagMatch) {
         const innerContent = innerContentMatch[1];
         const svgTag = svgTagMatch[0];
+        const mainColor = colorHex;
+        const shColor = shadowColorOverride || '#111111';
         svgString = `${svgTag}
-          <g transform="translate(4, 4)" color="#111111">${innerContent}</g>
-          <g color="${colorHex}">${innerContent}</g>
+          <g transform="translate(2, 2)" color="${shColor}">${innerContent}</g>
+          <g color="${mainColor}">${innerContent}</g>
         </svg>`;
       } else {
         svgString = svgString.replace(/currentColor/g, colorHex);
@@ -293,7 +295,7 @@ export function AssetLibrary({ themeColors, currentHex, currentTheme, handleCopy
           </div>
 
           <div className="bg-asphalt border-2 border-asphalt p-6 shadow-brutal-black flex flex-col items-center justify-center relative group">
-            <div className={`w-full max-w-[200px] text-pure mb-6 transition-all duration-300 ${showShadow ? 'drop-shadow-[3px_3px_0_#111111]' : ''}`}>
+            <div className={`w-full max-w-[200px] text-pure mb-6 transition-all duration-300 ${showShadow ? 'drop-shadow-[1px_1px_0_#111111]' : ''}`}>
               <LogoSVG />
             </div>
             <div className="absolute inset-0 bg-pure/90 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -308,7 +310,7 @@ export function AssetLibrary({ themeColors, currentHex, currentTheme, handleCopy
           </div>
 
           <div className="bg-pure border-2 border-asphalt p-6 shadow-brutal-black flex flex-col items-center justify-center relative group">
-            <div className={`w-full max-w-[200px] text-[#00FF00] mb-6 transition-all duration-300 ${showShadow ? 'drop-shadow-[3px_3px_0_#111111]' : ''}`}>
+            <div className={`w-full max-w-[200px] text-[#00FF00] mb-6 transition-all duration-300 ${showShadow ? 'drop-shadow-[1px_1px_0_#111111]' : ''}`}>
               <LogoSVG />
             </div>
             <div className="absolute inset-0 bg-asphalt/90 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -323,7 +325,7 @@ export function AssetLibrary({ themeColors, currentHex, currentTheme, handleCopy
           </div>
 
           <div className="bg-pure border-2 border-asphalt p-6 shadow-brutal-black flex flex-col items-center justify-center relative group">
-            <div className={`w-full max-w-[200px] text-[#00E5FF] mb-6 transition-all duration-300 ${showShadow ? 'drop-shadow-[3px_3px_0_#111111]' : ''}`}>
+            <div className={`w-full max-w-[200px] text-[#00E5FF] mb-6 transition-all duration-300 ${showShadow ? 'drop-shadow-[1px_1px_0_#111111]' : ''}`}>
               <LogoSVG />
             </div>
             <div className="absolute inset-0 bg-asphalt/90 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -338,7 +340,7 @@ export function AssetLibrary({ themeColors, currentHex, currentTheme, handleCopy
           </div>
 
           <div className="bg-pure border-2 border-asphalt p-6 shadow-brutal-black flex flex-col items-center justify-center relative group">
-            <div className={`w-full max-w-[200px] text-[#FF0092] mb-6 transition-all duration-300 ${showShadow ? 'drop-shadow-[3px_3px_0_#111111]' : ''}`}>
+            <div className={`w-full max-w-[200px] text-[#FF0092] mb-6 transition-all duration-300 ${showShadow ? 'drop-shadow-[1px_1px_0_#111111]' : ''}`}>
               <LogoSVG />
             </div>
             <div className="absolute inset-0 bg-asphalt/90 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -353,7 +355,7 @@ export function AssetLibrary({ themeColors, currentHex, currentTheme, handleCopy
           </div>
 
           <div className="bg-pure border-2 border-asphalt p-6 shadow-brutal-black flex flex-col items-center justify-center relative group">
-            <div className={`w-full max-w-[200px] text-[#CCFF00] mb-6 transition-all duration-300 ${showShadow ? 'drop-shadow-[3px_3px_0_#111111]' : ''}`}>
+            <div className={`w-full max-w-[200px] text-[#CCFF00] mb-6 transition-all duration-300 ${showShadow ? 'drop-shadow-[1px_1px_0_#111111]' : ''}`}>
               <LogoSVG />
             </div>
             <div className="absolute inset-0 bg-asphalt/90 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -367,6 +369,36 @@ export function AssetLibrary({ themeColors, currentHex, currentTheme, handleCopy
             <span className="absolute bottom-2 left-2 text-[10px] font-bold uppercase text-asphalt/50">Volt (Yellow)</span>
           </div>
         </div>
+
+        {/* Inverted: Black logo with neon shadow */}
+        {showShadow && (
+          <>
+            <h3 className="font-headline text-2xl text-asphalt mt-16 mb-8 border-b-2 border-asphalt/10 pb-4">Inverted — Black with Neon Shadow</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+              {[
+                { name: 'acid', hex: '#00FF00', label: 'Acid (Green)' },
+                { name: 'hyper', hex: '#00E5FF', label: 'Hyper (Cyan)' },
+                { name: 'synth', hex: '#FF0092', label: 'Synth (Purple)' },
+                { name: 'volt', hex: '#CCFF00', label: 'Volt (Yellow)' },
+              ].map(({ name, hex, label }) => (
+                <div key={`inv-${name}`} className="bg-pure border-2 border-asphalt p-6 shadow-brutal-black flex flex-col items-center justify-center relative group">
+                  <div className={`w-full max-w-[200px] text-asphalt mb-6 transition-all duration-300`} style={{ filter: `drop-shadow(1px 1px 0 ${hex})` }}>
+                    <LogoSVG />
+                  </div>
+                  <div className="absolute inset-0 bg-asphalt/90 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <button onClick={() => downloadAsset(LogoSVG, `culturedrops-logo-black-${name}-shadow`, 'svg', '#111111', true, hex)} className="text-pure font-bold uppercase tracking-widest text-sm flex items-center gap-2 hover:text-brand transition-colors mb-2">
+                      <Download size={16} /> SVG
+                    </button>
+                    <button onClick={() => downloadAsset(LogoSVG, `culturedrops-logo-black-${name}-shadow`, 'png', '#111111', true, hex)} className="text-asphalt font-bold uppercase tracking-widest text-sm flex items-center gap-2 hover:text-brand transition-colors">
+                      <Download size={16} /> PNG
+                    </button>
+                  </div>
+                  <span className="absolute bottom-2 left-2 text-[10px] font-bold uppercase text-asphalt/50">Black + {label}</span>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
       </section>
 
       {/* Social Profile Images */}
