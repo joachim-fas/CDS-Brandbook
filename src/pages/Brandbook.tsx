@@ -89,7 +89,7 @@ export function Brandbook({ themeColors, currentHex, handleCopy }: BrandbookProp
   /* Core Neon Palette */
   --color-acid:  #00FF00;
   --color-hyper: #00E5FF;
-  --color-synth: #B200FF;
+  --color-synth: #FF0092;
   --color-volt:  #CCFF00;
 
   /* Dynamic Brand Color (Shopify Settings) */
@@ -101,7 +101,7 @@ export function Brandbook({ themeColors, currentHex, handleCopy }: BrandbookProp
   --color-bg:      #F4F4F0;
 }`}</code></pre>
             <button 
-              onClick={() => handleCopy(`:root {\n  --color-acid: #00FF00;\n  --color-hyper: #00E5FF;\n  --color-synth: #B200FF;\n  --color-volt: #CCFF00;\n  --color-brand: ${currentHex};\n  --color-asphalt: #111111;\n  --color-pure: #FFFFFF;\n  --color-bg: #F4F4F0;\n}`, 'CSS Code copied!')} 
+              onClick={() => handleCopy(`:root {\n  --color-acid: #00FF00;\n  --color-hyper: #00E5FF;\n  --color-synth: #FF0092;\n  --color-volt: #CCFF00;\n  --color-brand: ${currentHex};\n  --color-asphalt: #111111;\n  --color-pure: #FFFFFF;\n  --color-bg: #F4F4F0;\n}`, 'CSS Code copied!')} 
               className="absolute top-2 right-2 bg-brand text-asphalt px-2 py-1 text-xs font-bold border border-asphalt hover:bg-asphalt hover:text-brand transition-colors"
             >
               COPY

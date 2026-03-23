@@ -11,6 +11,7 @@ import { Home } from './pages/Home';
 import { Brandbook } from './pages/Brandbook';
 import { AssetLibrary } from './pages/AssetLibrary';
 import { ShopifyTemplate } from './pages/ShopifyTemplate';
+import { SocialMediaKit } from './pages/SocialMediaKit';
 import { ScrollToTop } from './components/ScrollToTop';
 
 export default function App() {
@@ -33,7 +34,7 @@ export default function App() {
   const themeColors = {
     acid: '#00FF00',
     hyper: '#00E5FF',
-    synth: '#B200FF',
+    synth: '#FF0092',
     volt: '#CCFF00'
   };
 
@@ -48,8 +49,10 @@ export default function App() {
         <main className="flex-grow">
           <Routes>
             <Route path="/brandbook" element={<Brandbook themeColors={themeColors} currentHex={currentHex} handleCopy={handleCopy} />} />
-            <Route path="/assets" element={<AssetLibrary themeColors={themeColors} currentHex={currentHex} handleCopy={handleCopy} />} />
+            <Route path="/assets" element={<AssetLibrary themeColors={themeColors} currentHex={currentHex} currentTheme={theme} handleCopy={handleCopy} />} />
+            <Route path="/social" element={<SocialMediaKit themeColors={themeColors} currentHex={currentHex} currentTheme={theme} handleCopy={handleCopy} />} />
             <Route path="/shopify" element={<ShopifyTemplate />} />
+            <Route path="/" element={<Home />} />
           </Routes>
         </main>
 

@@ -224,7 +224,7 @@ export function ShopifyTemplate() {
             <div key={item.id} className="group cursor-pointer flex flex-col">
               <div className="bg-pure aspect-[3/4] border-4 border-asphalt mb-6 relative overflow-hidden flex items-center justify-center shadow-[6px_6px_0_0_#111111] group-hover:shadow-[10px_10px_0_0_var(--color-brand)] transition-all duration-300 group-hover:-translate-y-2">
                 {item.tag && (
-                  <div className={`absolute top-4 left-4 \${item.tag === 'Sold Out' ? 'bg-asphalt text-pure' : 'bg-brand text-asphalt'} font-bold text-xs px-3 py-1 border-2 border-asphalt uppercase z-10 transition-colors duration-300`}>
+                  <div className={`absolute top-4 left-4 ${item.tag === 'Sold Out' ? 'bg-asphalt text-pure' : 'bg-brand text-asphalt'} font-bold text-xs px-3 py-1 border-2 border-asphalt uppercase z-10 transition-colors duration-300`}>
                     {item.tag}
                   </div>
                 )}
@@ -233,7 +233,7 @@ export function ShopifyTemplate() {
                 {/* Quick Add Button */}
                 <div className="absolute bottom-4 left-4 right-4 translate-y-[150%] group-hover:translate-y-0 transition-transform duration-300 z-20">
                   <button 
-                    className={`w-full font-headline tracking-widest text-lg px-4 py-4 font-bold uppercase border-2 border-asphalt transition-colors \${item.tag === 'Sold Out' ? 'bg-bglight text-asphalt/50 cursor-not-allowed' : 'bg-pure text-asphalt hover:bg-brand'}`}
+                    className={`w-full font-headline tracking-widest text-lg px-4 py-4 font-bold uppercase border-2 border-asphalt transition-colors ${item.tag === 'Sold Out' ? 'bg-bglight text-asphalt/50 cursor-not-allowed' : 'bg-pure text-asphalt hover:bg-brand'}`}
                     onClick={(e) => {
                       e.stopPropagation();
                       if (item.tag !== 'Sold Out') setIsCartOpen(true);
@@ -305,7 +305,7 @@ export function ShopifyTemplate() {
       {/* Dawn: Email Signup */}
       <section className="border-t-4 border-asphalt">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32 flex flex-col items-center text-center">
-          <div className="text-brand mb-6 drop-shadow-[3px_3px_0_#111] transition-colors duration-300">
+          <div className="text-brand mb-6 drop-shadow-[3px_3px_0_#111111] transition-colors duration-300">
             <LogoSVG />
           </div>
           <h2 className="font-headline text-4xl sm:text-5xl md:text-6xl text-asphalt uppercase mb-6">Join The Crew</h2>

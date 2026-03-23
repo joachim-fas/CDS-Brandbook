@@ -12,6 +12,7 @@ export function Navigation({ themeColors, setTheme }: NavigationProps) {
   const location = useLocation();
   const isBrandbook = location.pathname === '/brandbook';
   const isAssets = location.pathname === '/assets';
+  const isSocial = location.pathname === '/social';
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const toggleMobileMenu = () => {
@@ -30,12 +31,13 @@ export function Navigation({ themeColors, setTheme }: NavigationProps) {
             <div className="w-24 h-8 text-asphalt transition-colors flex items-center">
               <LogoSVG />
             </div>
-            <span className="font-headline text-xl tracking-widest text-asphalt mt-1 hidden sm:block">BRANDBOOK 2026</span>
+            <span className="font-headline text-xl tracking-widest text-asphalt mt-1 hidden sm:block">BRANDBOOK</span>
           </Link>
           
           <div className="hidden md:flex space-x-2 lg:space-x-4 items-center">
             <Link to="/brandbook" className={`text-sm font-bold hover:text-brand hover:bg-asphalt px-2 py-1 transition-colors border-b-2 ${location.pathname === '/brandbook' ? 'border-brand' : 'border-transparent'} hover:border-brand`}>BRANDBOOK</Link>
             <Link to="/assets" className={`text-sm font-bold hover:text-brand hover:bg-asphalt px-2 py-1 transition-colors border-b-2 ${location.pathname === '/assets' ? 'border-brand' : 'border-transparent'} hover:border-brand`}>ASSETS</Link>
+            <Link to="/social" className={`text-sm font-bold hover:text-brand hover:bg-asphalt px-2 py-1 transition-colors border-b-2 ${location.pathname === '/social' ? 'border-brand' : 'border-transparent'} hover:border-brand`}>SOCIAL</Link>
             <Link to="/shopify" className={`text-sm font-bold hover:text-brand hover:bg-asphalt px-2 py-1 transition-colors border-b-2 ${location.pathname === '/shopify' ? 'border-brand' : 'border-transparent'} hover:border-brand`}>SHOPIFY TEMPLATE</Link>
             
             <div className="w-px h-6 bg-asphalt/20 mx-2"></div>
@@ -70,6 +72,7 @@ export function Navigation({ themeColors, setTheme }: NavigationProps) {
           <div className="px-4 pt-2 pb-6 space-y-4 flex flex-col">
             <Link to="/brandbook" onClick={closeMobileMenu} className={`text-lg font-bold hover:text-brand hover:bg-asphalt px-4 py-3 transition-colors border-l-4 ${location.pathname === '/brandbook' ? 'border-brand bg-asphalt/5' : 'border-transparent'} hover:border-brand block`}>BRANDBOOK</Link>
             <Link to="/assets" onClick={closeMobileMenu} className={`text-lg font-bold hover:text-brand hover:bg-asphalt px-4 py-3 transition-colors border-l-4 ${location.pathname === '/assets' ? 'border-brand bg-asphalt/5' : 'border-transparent'} hover:border-brand block`}>ASSETS</Link>
+            <Link to="/social" onClick={closeMobileMenu} className={`text-lg font-bold hover:text-brand hover:bg-asphalt px-4 py-3 transition-colors border-l-4 ${location.pathname === '/social' ? 'border-brand bg-asphalt/5' : 'border-transparent'} hover:border-brand block`}>SOCIAL</Link>
             <Link to="/shopify" onClick={closeMobileMenu} className={`text-lg font-bold hover:text-brand hover:bg-asphalt px-4 py-3 transition-colors border-l-4 ${location.pathname === '/shopify' ? 'border-brand bg-asphalt/5' : 'border-transparent'} hover:border-brand block`}>SHOPIFY TEMPLATE</Link>
             
             <div className="h-px bg-asphalt/10 my-4 mx-4"></div>
@@ -92,7 +95,7 @@ export function Navigation({ themeColors, setTheme }: NavigationProps) {
       )}
       
       {/* Sub-navigation */}
-      {(isBrandbook || isAssets) && (
+      {(isBrandbook || isAssets || isSocial) && (
         <div className="w-full bg-asphalt text-pure py-2 border-b-2 border-brand overflow-x-auto whitespace-nowrap scrollbar-hide">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex space-x-4 md:space-x-6">
             {isBrandbook && (
@@ -114,6 +117,15 @@ export function Navigation({ themeColors, setTheme }: NavigationProps) {
                 <a href="#tokens" className="text-xs font-bold hover:text-asphalt hover:bg-brand px-2 py-1 transition-colors">DESIGN TOKENS</a>
                 <a href="#icons" className="text-xs font-bold hover:text-asphalt hover:bg-brand px-2 py-1 transition-colors">ICONS</a>
                 <a href="#patterns" className="text-xs font-bold hover:text-asphalt hover:bg-brand px-2 py-1 transition-colors">PATTERNS</a>
+              </>
+            )}
+            {isSocial && (
+              <>
+                <a href="#builder" className="text-xs font-bold hover:text-asphalt hover:bg-brand px-2 py-1 transition-colors">BUILDER</a>
+                <a href="#youtube" className="text-xs font-bold hover:text-asphalt hover:bg-brand px-2 py-1 transition-colors">YOUTUBE</a>
+                <a href="#instagram" className="text-xs font-bold hover:text-asphalt hover:bg-brand px-2 py-1 transition-colors">INSTAGRAM</a>
+                <a href="#tiktok" className="text-xs font-bold hover:text-asphalt hover:bg-brand px-2 py-1 transition-colors">TIKTOK</a>
+                <a href="#pinterest" className="text-xs font-bold hover:text-asphalt hover:bg-brand px-2 py-1 transition-colors">PINTEREST</a>
               </>
             )}
           </div>

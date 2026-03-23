@@ -9,10 +9,11 @@ import { downloadImage } from '../utils/download';
 interface AssetLibraryProps {
   themeColors: Record<string, string>;
   currentHex: string;
+  currentTheme: string;
   handleCopy: (text: string, message: string) => void;
 }
 
-export function AssetLibrary({ themeColors, currentHex, handleCopy }: AssetLibraryProps) {
+export function AssetLibrary({ themeColors, currentHex, currentTheme, handleCopy }: AssetLibraryProps) {
   const [showShadow, setShowShadow] = useState(true);
 
   const generatePngBlob = (svgString: string): Promise<Blob> => {
@@ -104,7 +105,7 @@ export function AssetLibrary({ themeColors, currentHex, handleCopy }: AssetLibra
         { name: 'white', hex: '#FFFFFF' },
         { name: 'acid', hex: '#00FF00' },
         { name: 'hyper', hex: '#00E5FF' },
-        { name: 'synth', hex: '#B200FF' },
+        { name: 'synth', hex: '#FF0092' },
         { name: 'volt', hex: '#CCFF00' }
       ];
 
@@ -241,7 +242,7 @@ export function AssetLibrary({ themeColors, currentHex, handleCopy }: AssetLibra
   const handleProfileDownload = async (name: string) => {
     const element = document.getElementById(`profile-${name}`);
     if (element) {
-      await downloadImage(element, 'png', `culturedrops-profile-${name}`);
+      await downloadImage(element, 'png', `culturedrops-profile-${name}`, { width: 1080, height: 1080 });
     }
   };
 
@@ -281,10 +282,10 @@ export function AssetLibrary({ themeColors, currentHex, handleCopy }: AssetLibra
               <LogoSVG />
             </div>
             <div className="absolute inset-0 bg-asphalt/90 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              <button onClick={() => downloadAsset(LogoSVG, `culturedrops-logo-black-flat`, 'svg', '#111111', false)} className="text-asphalt font-bold uppercase tracking-widest flex items-center gap-2 hover:text-brand transition-colors mb-2">
+              <button onClick={() => downloadAsset(LogoSVG, `culturedrops-logo-black-flat`, 'svg', '#111111', false)} className="text-pure font-bold uppercase tracking-widest text-sm flex items-center gap-2 hover:text-brand transition-colors mb-2">
                 <Download size={16} /> SVG
               </button>
-              <button onClick={() => downloadAsset(LogoSVG, `culturedrops-logo-black-flat`, 'png', '#111111', false)} className="text-asphalt font-bold uppercase tracking-widest flex items-center gap-2 hover:text-brand transition-colors">
+              <button onClick={() => downloadAsset(LogoSVG, `culturedrops-logo-black-flat`, 'png', '#111111', false)} className="bg-asphalt text-pure font-bold uppercase tracking-widest text-sm px-5 py-2 border-2 border-pure hover:bg-brand hover:text-asphalt transition-colors flex items-center gap-2">
                 <Download size={16} /> PNG
               </button>
             </div>
@@ -296,10 +297,10 @@ export function AssetLibrary({ themeColors, currentHex, handleCopy }: AssetLibra
               <LogoSVG />
             </div>
             <div className="absolute inset-0 bg-pure/90 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              <button onClick={() => downloadAsset(LogoSVG, `culturedrops-logo-white-${showShadow ? 'shadow' : 'flat'}`, 'svg', '#FFFFFF', showShadow)} className="text-asphalt font-bold uppercase tracking-widest flex items-center gap-2 hover:text-brand transition-colors mb-2">
+              <button onClick={() => downloadAsset(LogoSVG, `culturedrops-logo-white-${showShadow ? 'shadow' : 'flat'}`, 'svg', '#FFFFFF', showShadow)} className="text-pure font-bold uppercase tracking-widest text-sm flex items-center gap-2 hover:text-brand transition-colors mb-2">
                 <Download size={16} /> SVG
               </button>
-              <button onClick={() => downloadAsset(LogoSVG, `culturedrops-logo-white-${showShadow ? 'shadow' : 'flat'}`, 'png', '#FFFFFF', showShadow)} className="text-asphalt font-bold uppercase tracking-widest flex items-center gap-2 hover:text-brand transition-colors">
+              <button onClick={() => downloadAsset(LogoSVG, `culturedrops-logo-white-${showShadow ? 'shadow' : 'flat'}`, 'png', '#FFFFFF', showShadow)} className="text-asphalt font-bold uppercase tracking-widest text-sm flex items-center gap-2 hover:text-brand transition-colors">
                 <Download size={16} /> PNG
               </button>
             </div>
@@ -311,10 +312,10 @@ export function AssetLibrary({ themeColors, currentHex, handleCopy }: AssetLibra
               <LogoSVG />
             </div>
             <div className="absolute inset-0 bg-asphalt/90 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              <button onClick={() => downloadAsset(LogoSVG, `culturedrops-logo-acid-${showShadow ? 'shadow' : 'flat'}`, 'svg', '#00FF00', showShadow)} className="text-asphalt font-bold uppercase tracking-widest flex items-center gap-2 hover:text-brand transition-colors mb-2">
+              <button onClick={() => downloadAsset(LogoSVG, `culturedrops-logo-acid-${showShadow ? 'shadow' : 'flat'}`, 'svg', '#00FF00', showShadow)} className="text-pure font-bold uppercase tracking-widest text-sm flex items-center gap-2 hover:text-brand transition-colors mb-2">
                 <Download size={16} /> SVG
               </button>
-              <button onClick={() => downloadAsset(LogoSVG, `culturedrops-logo-acid-${showShadow ? 'shadow' : 'flat'}`, 'png', '#00FF00', showShadow)} className="text-asphalt font-bold uppercase tracking-widest flex items-center gap-2 hover:text-brand transition-colors">
+              <button onClick={() => downloadAsset(LogoSVG, `culturedrops-logo-acid-${showShadow ? 'shadow' : 'flat'}`, 'png', '#00FF00', showShadow)} className="text-asphalt font-bold uppercase tracking-widest text-sm flex items-center gap-2 hover:text-brand transition-colors">
                 <Download size={16} /> PNG
               </button>
             </div>
@@ -326,10 +327,10 @@ export function AssetLibrary({ themeColors, currentHex, handleCopy }: AssetLibra
               <LogoSVG />
             </div>
             <div className="absolute inset-0 bg-asphalt/90 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              <button onClick={() => downloadAsset(LogoSVG, `culturedrops-logo-hyper-${showShadow ? 'shadow' : 'flat'}`, 'svg', '#00E5FF', showShadow)} className="text-asphalt font-bold uppercase tracking-widest flex items-center gap-2 hover:text-brand transition-colors mb-2">
+              <button onClick={() => downloadAsset(LogoSVG, `culturedrops-logo-hyper-${showShadow ? 'shadow' : 'flat'}`, 'svg', '#00E5FF', showShadow)} className="text-pure font-bold uppercase tracking-widest text-sm flex items-center gap-2 hover:text-brand transition-colors mb-2">
                 <Download size={16} /> SVG
               </button>
-              <button onClick={() => downloadAsset(LogoSVG, `culturedrops-logo-hyper-${showShadow ? 'shadow' : 'flat'}`, 'png', '#00E5FF', showShadow)} className="text-asphalt font-bold uppercase tracking-widest flex items-center gap-2 hover:text-brand transition-colors">
+              <button onClick={() => downloadAsset(LogoSVG, `culturedrops-logo-hyper-${showShadow ? 'shadow' : 'flat'}`, 'png', '#00E5FF', showShadow)} className="text-asphalt font-bold uppercase tracking-widest text-sm flex items-center gap-2 hover:text-brand transition-colors">
                 <Download size={16} /> PNG
               </button>
             </div>
@@ -337,14 +338,14 @@ export function AssetLibrary({ themeColors, currentHex, handleCopy }: AssetLibra
           </div>
 
           <div className="bg-pure border-2 border-asphalt p-6 shadow-brutal-black flex flex-col items-center justify-center relative group">
-            <div className={`w-full max-w-[200px] text-[#B200FF] mb-6 transition-all duration-300 ${showShadow ? 'drop-shadow-[3px_3px_0_#111111]' : ''}`}>
+            <div className={`w-full max-w-[200px] text-[#FF0092] mb-6 transition-all duration-300 ${showShadow ? 'drop-shadow-[3px_3px_0_#111111]' : ''}`}>
               <LogoSVG />
             </div>
             <div className="absolute inset-0 bg-asphalt/90 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              <button onClick={() => downloadAsset(LogoSVG, `culturedrops-logo-synth-${showShadow ? 'shadow' : 'flat'}`, 'svg', '#B200FF', showShadow)} className="text-asphalt font-bold uppercase tracking-widest flex items-center gap-2 hover:text-brand transition-colors mb-2">
+              <button onClick={() => downloadAsset(LogoSVG, `culturedrops-logo-synth-${showShadow ? 'shadow' : 'flat'}`, 'svg', '#FF0092', showShadow)} className="text-pure font-bold uppercase tracking-widest text-sm flex items-center gap-2 hover:text-brand transition-colors mb-2">
                 <Download size={16} /> SVG
               </button>
-              <button onClick={() => downloadAsset(LogoSVG, `culturedrops-logo-synth-${showShadow ? 'shadow' : 'flat'}`, 'png', '#B200FF', showShadow)} className="text-asphalt font-bold uppercase tracking-widest flex items-center gap-2 hover:text-brand transition-colors">
+              <button onClick={() => downloadAsset(LogoSVG, `culturedrops-logo-synth-${showShadow ? 'shadow' : 'flat'}`, 'png', '#FF0092', showShadow)} className="text-asphalt font-bold uppercase tracking-widest text-sm flex items-center gap-2 hover:text-brand transition-colors">
                 <Download size={16} /> PNG
               </button>
             </div>
@@ -356,10 +357,10 @@ export function AssetLibrary({ themeColors, currentHex, handleCopy }: AssetLibra
               <LogoSVG />
             </div>
             <div className="absolute inset-0 bg-asphalt/90 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              <button onClick={() => downloadAsset(LogoSVG, `culturedrops-logo-volt-${showShadow ? 'shadow' : 'flat'}`, 'svg', '#CCFF00', showShadow)} className="text-asphalt font-bold uppercase tracking-widest flex items-center gap-2 hover:text-brand transition-colors mb-2">
+              <button onClick={() => downloadAsset(LogoSVG, `culturedrops-logo-volt-${showShadow ? 'shadow' : 'flat'}`, 'svg', '#CCFF00', showShadow)} className="text-pure font-bold uppercase tracking-widest text-sm flex items-center gap-2 hover:text-brand transition-colors mb-2">
                 <Download size={16} /> SVG
               </button>
-              <button onClick={() => downloadAsset(LogoSVG, `culturedrops-logo-volt-${showShadow ? 'shadow' : 'flat'}`, 'png', '#CCFF00', showShadow)} className="text-asphalt font-bold uppercase tracking-widest flex items-center gap-2 hover:text-brand transition-colors">
+              <button onClick={() => downloadAsset(LogoSVG, `culturedrops-logo-volt-${showShadow ? 'shadow' : 'flat'}`, 'png', '#CCFF00', showShadow)} className="text-asphalt font-bold uppercase tracking-widest text-sm flex items-center gap-2 hover:text-brand transition-colors">
                 <Download size={16} /> PNG
               </button>
             </div>
@@ -377,7 +378,7 @@ export function AssetLibrary({ themeColors, currentHex, handleCopy }: AssetLibra
             { name: 'white', hex: '#FFFFFF', textColor: '#111111' },
             { name: 'acid', hex: '#00FF00', textColor: '#111111' },
             { name: 'hyper', hex: '#00E5FF', textColor: '#111111' },
-            { name: 'synth', hex: '#B200FF', textColor: '#FFFFFF' },
+            { name: 'synth', hex: '#FF0092', textColor: '#FFFFFF' },
             { name: 'volt', hex: '#CCFF00', textColor: '#111111' }
           ].map(({ name, hex, textColor }) => (
             <div key={name} className="bg-pure border-2 border-asphalt p-4 shadow-brutal-black flex flex-col items-center justify-center relative group">
@@ -386,7 +387,7 @@ export function AssetLibrary({ themeColors, currentHex, handleCopy }: AssetLibra
                   <LogoSVG />
                 </div>
               </div>
-              <button onClick={() => handleProfileDownload(name)} className="text-asphalt font-bold uppercase tracking-widest flex items-center gap-2 hover:text-brand transition-colors">
+              <button onClick={() => handleProfileDownload(name)} className="text-asphalt font-bold uppercase tracking-widest text-sm flex items-center gap-2 hover:text-brand transition-colors">
                 <Download size={16} /> PNG
               </button>
               <span className="mt-2 text-[10px] font-bold uppercase text-asphalt/50">{name}</span>
@@ -427,7 +428,7 @@ export function AssetLibrary({ themeColors, currentHex, handleCopy }: AssetLibra
               <div className="absolute inset-0 bg-asphalt/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 <button 
                   onClick={(e) => { e.stopPropagation(); downloadAsset(Icon, `icon-${label.toLowerCase()}`, 'svg', '#111111', false, { size: 24, strokeWidth: 2 }); }} 
-                  className="bg-brand text-asphalt font-bold px-6 py-3 border-2 border-asphalt hover:scale-105 transition-transform flex items-center gap-2"
+                  className="text-asphalt font-bold uppercase tracking-widest text-sm flex items-center gap-2 hover:text-brand transition-colors"
                 >
                   <Download size={16} /> SVG
                 </button>
@@ -504,7 +505,7 @@ export function AssetLibrary({ themeColors, currentHex, handleCopy }: AssetLibra
     "brand": {
       "acid": "#00FF00",
       "hyper": "#00E5FF",
-      "synth": "#B200FF",
+      "synth": "#FF0092",
       "volt": "#CCFF00"
     },
     "base": {
@@ -515,7 +516,7 @@ export function AssetLibrary({ themeColors, currentHex, handleCopy }: AssetLibra
   }
 }`}</code></pre>
               <button 
-                onClick={() => handleCopy(`{\n  "colors": {\n    "brand": {\n      "acid": "#00FF00",\n      "hyper": "#00E5FF",\n      "synth": "#B200FF",\n      "volt": "#CCFF00"\n    },\n    "base": {\n      "asphalt": "#111111",\n      "pure": "#FFFFFF",\n      "bglight": "#F4F4F0"\n    }\n  }\n}`, 'JSON copied!')} 
+                onClick={() => handleCopy(`{\n  "colors": {\n    "brand": {\n      "acid": "#00FF00",\n      "hyper": "#00E5FF",\n      "synth": "#FF0092",\n      "volt": "#CCFF00"\n    },\n    "base": {\n      "asphalt": "#111111",\n      "pure": "#FFFFFF",\n      "bglight": "#F4F4F0"\n    }\n  }\n}`, 'JSON copied!')} 
                 className="absolute top-2 right-2 bg-brand text-asphalt px-2 py-1 text-xs font-bold border border-asphalt hover:bg-asphalt hover:text-brand transition-colors"
               >
                 COPY
@@ -571,8 +572,8 @@ export function AssetLibrary({ themeColors, currentHex, handleCopy }: AssetLibra
 }`}
               </pre>
             </div>
-            <div className="flex gap-4">
-              <button onClick={() => handleCopy(`.pattern-notebook {\n  background-color: #F4F4F0;\n  background-image: linear-gradient(#111111 1px, transparent 1px);\n  background-size: 100% 24px;\n}`, 'Copied CSS!')} className="bg-brand text-asphalt font-bold px-6 py-3 border-2 border-asphalt hover:scale-105 transition-transform flex items-center gap-2">
+            <div className="flex gap-4 mt-4">
+              <button onClick={() => handleCopy(`.pattern-notebook {\n  background-color: #F4F4F0;\n  background-image: linear-gradient(#111111 1px, transparent 1px);\n  background-size: 100% 24px;\n}`, 'Copied CSS!')} className="text-asphalt font-bold uppercase tracking-widest text-sm flex items-center gap-2 hover:text-brand transition-colors">
                 <Download size={16} /> Copy CSS
               </button>
               <button onClick={() => downloadPatternPng(`
@@ -584,7 +585,7 @@ export function AssetLibrary({ themeColors, currentHex, handleCopy }: AssetLibra
   </pattern>
   <rect width="1000" height="1000" fill="url(#notebook)" />
 </svg>
-`, 'lined-notepad-pattern')} className="bg-brand text-asphalt font-bold px-6 py-3 border-2 border-asphalt hover:scale-105 transition-transform flex items-center gap-2">
+`, `lined-notepad-pattern-${currentTheme}`)} className="text-asphalt font-bold uppercase tracking-widest text-sm flex items-center gap-2 hover:text-brand transition-colors">
                 <Download size={16} /> PNG
               </button>
             </div>
@@ -608,20 +609,20 @@ export function AssetLibrary({ themeColors, currentHex, handleCopy }: AssetLibra
 }`}
               </pre>
             </div>
-            <div className="flex gap-4">
-              <button onClick={() => handleCopy(`.pattern-checker {\n  background-color: #F4F4F0;\n  background-image: \n    repeating-linear-gradient(45deg, #111111 25%, transparent 25%, transparent 75%, #111111 75%, #111111), \n    repeating-linear-gradient(45deg, #111111 25%, #F4F4F0 25%, #F4F4F0 75%, #111111 75%, #111111);\n  background-position: 0 0, 10px 10px;\n  background-size: 20px 20px;\n}`, 'Copied CSS!')} className="text-asphalt font-bold uppercase tracking-widest flex items-center gap-2 hover:text-brand transition-colors">
+            <div className="flex gap-4 mt-4">
+              <button onClick={() => handleCopy(`.pattern-checker {\n  background-color: #F4F4F0;\n  background-image: \n    repeating-linear-gradient(45deg, #111111 25%, transparent 25%, transparent 75%, #111111 75%, #111111), \n    repeating-linear-gradient(45deg, #111111 25%, #F4F4F0 25%, #F4F4F0 75%, #111111 75%, #111111);\n  background-position: 0 0, 10px 10px;\n  background-size: 20px 20px;\n}`, 'Copied CSS!')} className="text-asphalt font-bold uppercase tracking-widest text-sm flex items-center gap-2 hover:text-brand transition-colors">
                 <Download size={16} /> COPY CSS
               </button>
               <button onClick={() => downloadPatternPng(`
 <svg width="1000" height="1000" xmlns="http://www.w3.org/2000/svg">
   <rect width="1000" height="1000" fill="#F4F4F0" />
-  <pattern id="checker" width="20" height="20" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+  <pattern id="checker" width="20" height="20" patternUnits="userSpaceOnUse">
     <rect width="10" height="10" fill="#111111" />
     <rect x="10" y="10" width="10" height="10" fill="#111111" />
   </pattern>
   <rect width="1000" height="1000" fill="url(#checker)" />
 </svg>
-`, 'street-checker-pattern')} className="text-asphalt font-bold uppercase tracking-widest flex items-center gap-2 hover:text-brand transition-colors">
+`, `street-checker-pattern-${currentTheme}`)} className="text-asphalt font-bold uppercase tracking-widest text-sm flex items-center gap-2 hover:text-brand transition-colors">
                 <Download size={16} /> PNG
               </button>
             </div>
@@ -646,21 +647,21 @@ export function AssetLibrary({ themeColors, currentHex, handleCopy }: AssetLibra
 }`}
               </pre>
             </div>
-            <div className="flex gap-4">
-              <button onClick={() => handleCopy(`.pattern-caution {\n  background: repeating-linear-gradient(\n    -45deg, \n    var(--color-brand), \n    var(--color-brand) 20px, \n    #111111 20px, \n    #111111 40px\n  );\n}`, 'Copied CSS!')} className="text-asphalt font-bold uppercase tracking-widest flex items-center gap-2 hover:text-brand transition-colors">
+            <div className="flex gap-4 mt-4">
+              <button onClick={() => handleCopy(`.pattern-caution {\n  background: repeating-linear-gradient(\n    -45deg, \n    var(--color-brand), \n    var(--color-brand) 20px, \n    #111111 20px, \n    #111111 40px\n  );\n}`, 'Copied CSS!')} className="text-asphalt font-bold uppercase tracking-widest text-sm flex items-center gap-2 hover:text-brand transition-colors">
                 <Download size={16} /> COPY CSS
               </button>
               <button onClick={() => downloadPatternPng(`
 <svg width="1000" height="1000" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <pattern id="caution" width="40" height="40" patternUnits="userSpaceOnUse" patternTransform="rotate(-45)">
-      <rect width="20" height="40" fill="#00FF00" />
+      <rect width="20" height="40" fill="${currentHex}" />
       <rect x="20" width="20" height="40" fill="#111111" />
     </pattern>
   </defs>
   <rect width="1000" height="1000" fill="url(#caution)" />
 </svg>
-`, 'caution-tape-pattern')} className="text-asphalt font-bold uppercase tracking-widest flex items-center gap-2 hover:text-brand transition-colors">
+`, `caution-tape-pattern-${currentTheme}`)} className="text-asphalt font-bold uppercase tracking-widest text-sm flex items-center gap-2 hover:text-brand transition-colors">
                 <Download size={16} /> PNG
               </button>
             </div>
@@ -709,7 +710,7 @@ export function AssetLibrary({ themeColors, currentHex, handleCopy }: AssetLibra
 }`}
               </pre>
             </div>
-            <button onClick={() => handleCopy(`.glitch-wrapper {\n  position: relative;\n}\n.glitch-text {\n  position: relative;\n  color: #111111;\n}\n.glitch-text::before, .glitch-text::after {\n  content: attr(data-text);\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n}\n.glitch-text::before {\n  left: 2px;\n  text-shadow: -2px 0 var(--color-brand);\n  clip: rect(24px, 550px, 90px, 0);\n  animation: glitch-anim 3s infinite linear alternate-reverse;\n}\n.glitch-text::after {\n  left: -2px;\n  text-shadow: -2px 0 #F4F4F0;\n  clip: rect(85px, 550px, 140px, 0);\n  animation: glitch-anim 2.5s infinite linear alternate-reverse;\n}`, 'Copied CSS!')} className="mt-4 text-sm font-bold uppercase tracking-widest text-asphalt hover:text-brand transition-colors flex items-center gap-2">
+            <button onClick={() => handleCopy(`.glitch-wrapper {\n  position: relative;\n}\n.glitch-text {\n  position: relative;\n  color: #111111;\n}\n.glitch-text::before, .glitch-text::after {\n  content: attr(data-text);\n  position: absolute;\n  top: 0;\n  left: 0;\n  width: 100%;\n  height: 100%;\n}\n.glitch-text::before {\n  left: 2px;\n  text-shadow: -2px 0 var(--color-brand);\n  clip: rect(24px, 550px, 90px, 0);\n  animation: glitch-anim 3s infinite linear alternate-reverse;\n}\n.glitch-text::after {\n  left: -2px;\n  text-shadow: -2px 0 #F4F4F0;\n  clip: rect(85px, 550px, 140px, 0);\n  animation: glitch-anim 2.5s infinite linear alternate-reverse;\n}`, 'Copied CSS!')} className="mt-4 text-asphalt font-bold uppercase tracking-widest text-sm flex items-center gap-2 hover:text-brand transition-colors">
               <Download size={16} /> Copy CSS
             </button>
           </div>
