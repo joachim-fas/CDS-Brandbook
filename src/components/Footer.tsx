@@ -6,7 +6,7 @@ import { XLogo, TikTokLogo } from './Icons';
 export function Footer() {
   return (
     <footer className="bg-brand text-asphalt py-12 text-center mt-20 border-t-8 border-asphalt transition-colors duration-300">
-      <div className="w-48 mx-auto mb-6 text-asphalt drop-shadow-[3px_3px_0_#fff]">
+      <div className="w-48 mx-auto mb-6 text-asphalt drop-shadow-[3px_3px_0_#111111]">
         <LogoSVG />
       </div>
       <div className="flex justify-center gap-6 mb-6">
